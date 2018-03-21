@@ -61,14 +61,14 @@ class UserQueryForm extends React.Component {
 		return (
 			<Form className="ant-search-form" onSubmit={this.handleSubmit}>
 				<Row>
-					<Col span={7}>
+					<Col span={6}>
 						<FormItem label="用户名" labelCol={{span: 8}} wrapperCol={{span: 16}} validateStatus={usernameError ? 'error' : ''} help={usernameError || ''}>
 							{getFieldDecorator('username', usernameConfig)(
 								<Input placeholder="用户名" />
 							)}
 						</FormItem>
 					</Col>
-					<Col span={7}>
+					<Col span={6}>
 						<FormItem {...formItemLayout} label="用户状态" validateStatus={stateError ? 'error' : ''} help={stateError || ''}>
 							{getFieldDecorator('state', stateConfig)(
 								<Select>
@@ -79,14 +79,14 @@ class UserQueryForm extends React.Component {
 							)}
 						</FormItem>
 					</Col>
-					<Col span={7}>
+					<Col span={8}>
 						<FormItem {...formItemLayout} label="注册日期" validateStatus={regDateError ? 'error' : ''} help={regDateError || ''}>
 							{getFieldDecorator('regDate', rangeConfig)(
 								<RangePicker disabledDate={disabledDate} showTime format="YYYY-MM-DD HH:mm:ss" />
 							)}
 						</FormItem>
 					</Col>
-					<Col span={3}>
+					<Col span={4} style={{marginTop: 4}}>
 						<Button type="primary" icon="search" htmlType="submit" disabled={hasErrors(getFieldsError())}>查询</Button>
 						<Button type="primary" style={{marginLeft: 8}} onClick={this.handleReset}>重置</Button>
 					</Col>

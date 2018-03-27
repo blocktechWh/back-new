@@ -1,192 +1,194 @@
 import React from 'react';
-import {Table, Modal, Form, Button, message, Popconfirm, Select, Input, DatePicker, Switch, Row, Col} from 'antd';
-const FormItem = Form.Item;
-import {queryUser, getUser, addUser, updateUser, deleteUser} from '../../api';
-import QueryForm from './userQuery';
-import EditForm from './userEdit';
-import {formatTime} from '../../utils/FormatUtils.js';
-const RangePicker = DatePicker.RangePicker;
+import {Table, Modal, Form, Button, message, Popconfirm, Select, Input, DatePicker, Switch, Row, Col, Message} from 'antd';
 
-export default class User extends React.Component {
+import ViewForm from './userView';
+import AddForm from './userAdd';
+import EditForm from './userEdit';
+
+import {queryUser, deleteUser} from '../../api';
+import {eventProxy, formatTime, And, Or, Oper, Order} from '../../utils';
+
+export default class UserGrid extends React.Component {
 	// 定义状态属性
 	state = {
+		// 外部数据
 		queryData: {}, // 查询表单数据
+
+		// 组件数据
 		loading: false, // 是否加载中
 		dataSource: [], // 列表数据源
+		selectedRowKeys: [], // 已选中记录
 		pagination: { // 分页信息
-			defaultPageSize: 20,
+			defaultPageSize: 1,
 			total: 0,
 			showSizeChanger: true,
 			showQuickJumper: true,
 			showTotal: total => `共 ${total} 条`,
 			onShowSizeChange: (current, pageSize) => {}
 		},
-		selectedRowKeys: [], // Check here to configure the default column
-		isFormVisible: false // 是否显示form
-	}
+		filters: {}, // 过滤信息
+		sorter: {}, // 排序信息
 
-	start = () => {
-		this.setState({loading: true});
-		// ajax request after empty completing
-		setTimeout(() => {
-			this.setState({
-				selectedRowKeys: [],
-				loading: false,
-			});
-		}, 1000);
-	}
-	onSelectChange = (selectedRowKeys) => {
-		console.log('selectedRowKeys changed: ', selectedRowKeys);
-		this.setState({selectedRowKeys});
+		// 子组件相关
+		isViewShow: false,
+		isAddShow: false,
+		isEditShow: false,
+		viewKeys: [],
+		editKeys: []
 	}
 
 	// 页面加载
 	componentDidMount() {
-		// 初始查询
-		this.fetchData(0, 10);
-	}
-
-	// 关联查询表单
-	saveFormRef2 = (instance) => {
-		this.queryForm = instance;
-	}
-
-	// 点击查询按钮
-	handleSearch = (values) => {
-		console.log(values);
+		// 监听事件（查询）
+		eventProxy.on('queryEvent', (values) => {
+			console.log("queryEvent:" + JSON.stringify(values));
+			// 设置状态，保存查询条件
+			this.state.queryData = values;
+			this.setState(this.state.queryData);
+			// 触发查询方法
+			this.doQuery();
+		});
+		// 监听事件（刷新）
+		eventProxy.on('reloadEvent', () => {
+			console.log("reloadEvent");
+			// 设置状态，清空选中记录
+			this.setState({selectedRowKeys: []});
+			// 触发查询方法
+			this.doQuery();
+		});
 	}
 
 	// 查询
-	fetchData(offset, pageSize, sortField, sortOrder) {
+	doQuery = () => {
+		console.log("doQuery, queryData=" + JSON.stringify(this.state.queryData));
+		console.log("doQuery, pagination=" + JSON.stringify(this.state.pagination));
+		console.log("doQuery, filters=" + JSON.stringify(this.state.filters));
+		console.log("doQuery, sorter=" + JSON.stringify(this.state.sorter));
+
 		this.setState({loading: true});
 
 		// 组织查询数据
-		// let pageParms = this.state.queryData;
-		// offset, pageSize, sortField, sortOrder
+		let and = new And("userName", this.state.queryData.username, Oper.like);
+		and.add("userState", this.state.queryData.state);
 
-		queryUser().then(res => {
+		let pageSize = this.state.pagination.pageSize || this.state.pagination.defaultPageSize;
+		let current = this.state.pagination.current || 1;
+
+		let query = {
+			query: and,
+			start: pageSize * (current - 1),
+			limit: pageSize,
+			sortBy: "id",
+			sortDir: "asc"
+		}
+		console.log("doQuery, query=" + JSON.stringify(query));
+
+		// 查询
+		queryUser(query).then(res => {
+			// 设置每一条数据的key
 			// Each record in table should have a unique `key` prop,or set `rowKey` to an unique primary key.
-			res.data.map((item, index) => {
+			res.data.rows.map((item, index) => {
 				return item.key = item.id;
 			});
 
-			this.state.pagination.total = res.data.length;
 			this.setState({
 				loading: false,
-				dataSource: res.data
+				dataSource: res.data.rows
 			});
+
+			console.log("doQuery, total=" + res.data.total);
+			this.state.pagination.total = res.data.total;
 			this.setState(this.state.pagination);
 		});
 	}
 
 	// 分页、排序、筛选变化时触发
-	handleTableChange(pagination, filters, sorter) {
-		this.setState({
-			pagination: pagination
-		});
-		//      this.fetchData(pagination.current,pagination.pageSize);
-		this.fetchData(pagination.current, pagination.pageSize, sorter.field, sorter.order == "ascend" ? true : false);
-	}
-
-	// 关联子组件
-	saveFormRef = (form) => {
-		this.form = form;
-	}
-
-	// 弹出用户编辑页面
-	toUpdateUser(user) {
-		this.form.resetFields();
-		let isAdd = user.id ? false : true;
-		user.password = "";
-		debugger
-		this.form.setFieldsValue(user);
-		this.setState({
-			visible: true,
-			isAdd: isAdd,
-			user
-		});
-	}
-
-	// 子组件，确定
-	handleOk = (e) => {
-		console.log(e);
-		this.setState({
-			loading: true
-		});
-		let filedsValue = this.form.getFieldsValue();
-		addUser({
-			id: this.state.edtingUserData.id,
-			...filedsValue
-		}).then(res => {
-			let list = [];
-			if (res.code === '000') {
-				this.setState({
-					visible: false,
-					loading: false
-				});
-				this.fetchData(0, 10);
-				message.success('保存用户信息成功！');
-			} else {
-				this.setState({
-					loading: false
-				});
-				message.error(res.msg);
-			}
-		});
-	}
-
-	// 子组件，取消
-	handleCancel = (e) => {
-		this.setState({
-			visible: false,
-		});
-	}
-
-	// 删除用户
-	deleteUser(user) {
-		this.setState({
-			loading: true
-		});
-		deleteUser(user.id).then(res => {
-			let list = [];
-			if (res.code === '000') {
-				message.success('删除成功！');
-				this.setState({
-					loading: false
-				});
-				this.fetchData(0, 10);
-			} else {
-				message.error(res.msg);
-			}
-		});
-	}
-
-	// 切换用户状态
-	changeUserState(user) {
-		let parmaObj = {
-			id: user.id,
-			status: (user.status === "y" ? "n" : "y")
+	doTableChange = (pagination, filters, sorter) => {
+		this.state.pagination = pagination;
+		this.state.filters = filters;
+		this.state.sorter = {
+			columnKey: sorter.columnKey,
+			field: sorter.field,
+			order: sorter.order
 		};
-		updateUser(parmaObj).then(res => {
-			let list = [];
-			if (res.code === '000') {
-				message.success('修改状态成功！');
-				this.setState({
-					visible: false,
-					loading: false,
+		this.setState({
+			pagination,
+			filters,
+			sorter
+		});
+		eventProxy.trigger('reloadEvent');
+	}
 
-				});
-				this.fetchData(0, 10);
+	// 导出
+	exportExcel = () => {
+		console.log("exportExcel");
+	}
 
-			} else {
-				message.error(res.msg);
-			}
+	// 删除
+	doDelete = () => {
+		console.log("doDelete, keys=" + this.state.selectedRowKeys);
+
+		deleteUser(this.state.selectedRowKeys[0]).then(res => {
+			eventProxy.trigger('reloadEvent');
+			Message.info("删除用户成功");
 		});
 	}
 
-	render() {
-		let that = this;
+	// ------扩展按钮：切换用户状态------
+	switchState = (userId) => {
+		console.log("switchState, userId=" + userId);
+	}
 
+	// ------扩展按钮：分配角色------
+	assignRole = (userId) => {
+		console.log("assignRole, userId=" + userId);
+	}
+
+	// ------子组件：查看------
+	linkViewForm = (obj) => this.viewForm = obj;
+	showViewForm = () => {
+		this.setState({
+			viewKeys: this.state.selectedRowKeys,
+			isViewShow: true
+		});
+	}
+	closeViewForm = () => {
+		this.setState({
+			viewKeys: [],
+			isViewShow: false
+		});
+	}
+
+	// ------子组件：新增------
+	linkAddForm = (obj) => this.addForm = obj;
+	showAddForm = () => {
+		this.setState({
+			isAddShow: true
+		});
+	}
+	closeAddForm = () => {
+		this.setState({
+			isAddShow: false
+		});
+	}
+
+	// ------子组件：编辑------
+	linkEditForm = (obj) => this.editForm = obj;
+	showEditForm = () => {
+		this.setState({
+			editKeys: this.state.selectedRowKeys,
+			isEditShow: true
+		});
+	}
+	closeEditForm = () => {
+		this.setState({
+			editKeys: [],
+			isEditShow: false
+		});
+	}
+
+	// render
+	render() {
 		const columns = [{
 			title: '编号',
 			dataIndex: 'id',
@@ -226,13 +228,10 @@ export default class User extends React.Component {
 			title: '分配角色',
 			key: 'oper',
 			width: 300,
-			render(record) {
-				let transfer = <Button type="primary" onClick={function () {that.toUpdateUser(record)}}>分配</Button>;
-				return <div> {transfer} </div>
+			render: record => {
+				return <div> <Button type="primary" onClick={() => {this.assignRole(record.key)}}>分配</Button> </div>
 			}
 		}];
-
-		const {data, selectedRowKeys} = this.state;
 
 		// 单个Col的列宽设定（24 栅格）
 		const formItemLayout = {
@@ -240,38 +239,42 @@ export default class User extends React.Component {
 			wrapperCol: {span: 16} // 控件列宽
 		};
 
+		// 选中记录变化
+		const {selectedRowKeys} = this.state;
 		const rowSelection = {
 			selectedRowKeys,
-			onChange: this.onSelectChange,
+			onChange: (selectedRowKeys) => {
+				console.log('selectedRowKeys changed:', selectedRowKeys);
+				this.setState({selectedRowKeys});
+			}
 		};
+		// 是否选中记录
 		const hasSelected = selectedRowKeys.length > 0;
 
 		return (
 			<div>
-				{/* 查询区 */}
-				<QueryForm onSubmit={this.handleSearch} ref={this.saveFormRef2} />
-
-				{/* 编辑窗 */}
-				<EditForm visible={this.state.visible} ref={this.saveFormRef} isAdd={this.state.isAdd} handleCancel={this.handleCancel}
-					handleCreate={this.handleOk.bind(this)} />
+				{/* 查看、新增、编辑 */}
+				<ViewForm ref={this.linkViewForm} visible={this.state.isViewShow} onClose={this.closeViewForm} dataKeys={this.state.viewKeys} />
+				<AddForm ref={this.linkAddForm} visible={this.state.isAddShow} onClose={this.closeAddForm} />
+				<EditForm ref={this.linkEditForm} visible={this.state.isEditShow} onClose={this.closeEditForm} dataKeys={this.state.editKeys} />
 
 				{/* 数据列表 */}
 				<div>
 					<div style={{marginLeft: 8, marginTop: 20, marginBottom: 8}}>
-						<Button type="primary" icon="file-excel" onClick={this.toUpdateUser.bind(this, {})}>导出</Button>
-						<Button type="primary" style={{marginLeft: 8}} icon="bars" onClick={this.toUpdateUser.bind(this, {})} disabled={!hasSelected}>查看</Button>
-						<Button type="primary" style={{marginLeft: 8}} icon="plus" onClick={this.toUpdateUser.bind(this, {})}>新增</Button>
-						<Button type="primary" style={{marginLeft: 8}} icon="edit" onClick={this.toUpdateUser.bind(this, {})} disabled={!hasSelected}>编辑</Button>
-						<Popconfirm placement="topRight" title="确认要删除吗？" onConfirm={this.toUpdateUser.bind(this, {})} okText="确认" cancelText="取消">
+						<Button type="primary" icon="file-excel" onClick={this.exportExcel}>导出</Button>
+						<Button type="primary" style={{marginLeft: 8}} icon="bars" onClick={this.showViewForm} disabled={!hasSelected}>查看</Button>
+						<Button type="primary" style={{marginLeft: 8}} icon="plus" onClick={this.showAddForm}>新增</Button>
+						<Button type="primary" style={{marginLeft: 8}} icon="edit" onClick={this.showEditForm} disabled={!hasSelected}>编辑</Button>
+						<Popconfirm placement="topRight" title="确认要删除吗？" onConfirm={this.doDelete} okText="确认" cancelText="取消">
 							<Button type="primary" style={{marginLeft: 8}} icon="delete" disabled={!hasSelected}>删除</Button>
 						</Popconfirm>
-						<Button type="primary" style={{marginLeft: 8}} icon="lock" onClick={this.toUpdateUser.bind(this, {})} disabled={!hasSelected}>停用</Button>
+						<Button type="primary" style={{marginLeft: 8}} icon="lock" onClick={this.exportExcel} disabled={!hasSelected}>停用</Button>
 						<span style={{marginLeft: 8}}>
 							{hasSelected ? `已选中 ${selectedRowKeys.length} 条记录` : ''}
 						</span>
 					</div>
 					<Table rowSelection={rowSelection} columns={columns} dataSource={this.state.dataSource} bordered={true}
-						loading={this.state.loading} pagination={this.state.pagination} onChange={this.handleTableChange.bind(this)} />
+						loading={this.state.loading} pagination={this.state.pagination} onChange={this.doTableChange} />
 				</div>
 			</div >
 		)

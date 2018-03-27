@@ -2,7 +2,7 @@ import React from 'react';
 import { Table, Modal,Button , message,Popconfirm,Select,Input ,Pagination} from 'antd';
 import { fontUsersName,addUsers ,updateStatus,deletesUser} from '../../api';
 import  FormWithModal  from './memberEditModal.jsx';
-import { formatTime } from '../../utils/FormatUtils.js';
+import { formatTime } from '../../utils';
 export default class User extends React.Component {
  
    state = {

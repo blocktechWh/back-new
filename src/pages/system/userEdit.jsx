@@ -1,54 +1,60 @@
-// You should fork and save if you had updated this CodePend and want to send it to others.
-// Note: antd.locales are only support by `dist/antd`
 import React from 'react';
-import {Form, Modal, Input, Select} from 'antd';
+import {Modal, Button, Form, Input, Message} from 'antd';
 const FormItem = Form.Item;
-import {addUsers} from '../../api';
-class RegistrationForm extends React.Component {
 
+import {getUser, updateUser} from '../../api';
+import {eventProxy} from '../../utils';
+
+class UserEditForm extends React.Component {
+    // 定义状态属性
     state = {
-        confirmDirty: false
-    };
-    checkPassword(rule, value, callback) {
-        const form = this.props.form;
-        if (value && value !== form.getFieldValue('password')) {
-            callback('确认密码和密码不相同!');
-        } else {
-            callback();
-        }
+        record: {}
     }
 
-    checkConfirm = (rule, value, callback) => {
-        const form = this.props.form;
-        if (value && this.state.confirmDirty) {
-            form.validateFields(['confirm'], {force: true});
-        }
-        callback();
-    }
-
-    handleConfirmBlur = (e) => {
-        const value = e.target.value;
-        this.setState({confirmDirty: this.state.confirmDirty || !!value});
-    }
-
+    // props发生变化
     componentWillReceiveProps(nextProps) {
+        // 判定发生有效变化
+        if (nextProps.dataKeys !== this.props.dataKeys && nextProps.dataKeys.length > 0) {
+            console.log("componentWillReceiveProps, dataKeys=" + nextProps.dataKeys);
 
+            // 加载数据
+            getUser(nextProps.dataKeys[0]).then(res => {
+                this.setState({
+                    record: res.data
+                });
+            });
+        }
     }
 
-
-
-    handleSubmit = (e) => {
-        e.preventDefault();
-        let that = this;
-        this.props.form.validateFieldsAndScroll((err, values) => {
+    doEdit = () => {
+        this.props.form.validateFields((err, values) => {
             if (!err) {
-                that.props.handleCreate();
-                console.log('Received values of form: ', values);
+                updateUser(this.state.record.id, values.username, values.realname).then(res => {
+                    eventProxy.trigger('reloadEvent');
+                    Message.info("编辑用户成功");
+                    this.props.onClose();
+                });
             }
         });
     }
 
+    doReset = () => {
+        this.props.form.resetFields();
+    }
+
     render() {
+        let {visible, onClose} = this.props;
+        let {getFieldDecorator, getFieldsError, getFieldError, isFieldTouched} = this.props.form;
+
+        let usernameConfig = {
+            rules: [{required: true, message: '用户名不可为空!'}],
+            initialValue: this.state.record.userName
+        }
+        let userRealnameConfig = {
+            rules: [{required: true, message: '姓名不可为空!'}],
+            initialValue: this.state.record.userRealname
+        }
+
         let formItemLayout = {
             labelCol: {
                 xs: {span: 24},
@@ -59,99 +65,31 @@ class RegistrationForm extends React.Component {
                 sm: {span: 14},
             },
         };
-        let tailFormItemLayout = {
-            wrapperCol: {
-                xs: {
-                    span: 24,
-                    offset: 0,
-                },
-                sm: {
-                    span: 14,
-                    offset: 6,
-                },
-            },
-        };
-
-        let {visible, handleCancel, form, isAdd} = this.props;
-        let {getFieldDecorator} = form;
-        let prefixSelector = getFieldDecorator('prefix', {
-            initialValue: '86',
-        })(
-            <Select style={{width: 60}}>
-                <Option value="86">+86</Option>
-                <Option value="87">+87</Option>
-            </Select>
-        );
-
-        let that = this;
-
 
         return (
             <Modal
                 visible={visible}
                 title="编辑用户"
-                okText="确定"
-                onOk={this.handleSubmit}
-                onCancel={handleCancel}
+                onCancel={onClose}
+                footer={[<Button key="saveBtn" type="primary" onClick={this.doEdit}>保存</Button>,
+                <Button key="resetBtn" onClick={this.doReset}>重置</Button>,
+                <Button key="closeBtn" onClick={onClose}>取消</Button>]}
             >
                 <Form layout="vertical">
                     <FormItem label="用户名"  {...formItemLayout}>
-                        {isAdd ?
-                            getFieldDecorator('username', {
-                                rules: [{required: true, message: '用户名不能为空!'}],
-                            })(
-                                <Input />
-                            ) : getFieldDecorator('username', {})(
-                                <Input disabled />
-                            )}
-                    </FormItem>
-
-                    <FormItem label="昵称"  {...formItemLayout} >
-                        {getFieldDecorator('nickname', {})(
+                        {getFieldDecorator('username', usernameConfig)(
                             <Input />
                         )}
                     </FormItem>
-
-                    <FormItem label="手机号"  {...formItemLayout} >
-                        {getFieldDecorator('phone', {
-                            rules: [{required: true, message: '请输入手机号!'}],
-                        })(
-                            <Input addonBefore={prefixSelector} style={{width: '100%'}} />
-                        )}
-                    </FormItem>
-
-                    <FormItem label="邮件"  {...formItemLayout} hasFeedback>
-                        {getFieldDecorator('email', {
-                            rules: [{
-                                type: 'email', message: 'The input is not valid E-mail!',
-                            }, {
-                                required: true, message: '请输入正确的邮件!',
-                            }],
-                        })(
+                    <FormItem label="姓名"  {...formItemLayout} >
+                        {getFieldDecorator('realname', userRealnameConfig)(
                             <Input />
-                        )}
-                    </FormItem>
-
-                    <FormItem label="密码"  {...formItemLayout} hasFeedback>
-                        {getFieldDecorator('password', {
-                            rules: [{validator: that.checkConfirm.bind(that)}, {required: isAdd, message: '请输入密码!'}],
-                        })(
-                            <Input type="password" />
-                        )}
-                    </FormItem>
-
-                    <FormItem label="确认密码"  {...formItemLayout} hasFeedback>
-                        {getFieldDecorator('confirm', {
-
-                            rules: [{validator: that.checkPassword.bind(that)}, {required: isAdd, message: '请输入确认密码!'}],
-                        })(
-                            <Input type="password" onBlur={this.handleConfirmBlur} />
                         )}
                     </FormItem>
                 </Form>
-            </Modal>
+            </Modal >
         );
     }
 }
 
-export default Form.create()(RegistrationForm);
+export default Form.create()(UserEditForm);

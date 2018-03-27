@@ -14,18 +14,10 @@ function disabledDate(current) {
 }
 
 class UserQueryForm extends React.Component {
+	// 页面加载
 	componentDidMount() {
 		// To disabled submit button at the beginning.
 		this.props.form.validateFields();
-	}
-
-	handleSubmit = (e) => {
-		e.preventDefault();
-		this.props.form.validateFields((err, values) => {
-			if (!err) {
-				this.props.onSubmit(values);
-			}
-		});
 	}
 
 	handleReset = () => {
@@ -59,7 +51,7 @@ class UserQueryForm extends React.Component {
 		};
 
 		return (
-			<Form className="ant-search-form" onSubmit={this.handleSubmit}>
+			<Form className="ant-search-form" onSubmit={this.props.onSubmit}>
 				<Row>
 					<Col span={6}>
 						<FormItem label="用户名" labelCol={{span: 8}} wrapperCol={{span: 16}} validateStatus={usernameError ? 'error' : ''} help={usernameError || ''}>
@@ -73,8 +65,8 @@ class UserQueryForm extends React.Component {
 							{getFieldDecorator('state', stateConfig)(
 								<Select>
 									<Select.Option value="">全部</Select.Option>
-									<Select.Option value="y">启用</Select.Option>
-									<Select.Option value="n">禁用</Select.Option>
+									<Select.Option value="valid">启用</Select.Option>
+									<Select.Option value="invalid">禁用</Select.Option>
 								</Select>
 							)}
 						</FormItem>

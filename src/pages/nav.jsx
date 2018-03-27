@@ -2,13 +2,13 @@ import React, {Component} from 'react';
 import {Layout, Menu, Icon, Popconfirm, message, Button} from 'antd';
 import {Link} from 'react-router';
 import {changePwd} from '../api';
-import ChangePasswordForm from '../forms/ChangePasswordForm';
+import ChangePasswordForm from './nav.pwd';
 const {Item, SubMenu} = Menu;
 const {Content, Sider, Footer, Header} = Layout;
 import {queryMenu, logout} from '../api';
 
 // 包含ChangePasswordForm组件，用于用户修改密码
-class Nav extends Component {
+class Nav extends React.Component {
     state = {
         menu: [], // 菜单数据
         rootId: -1, // 菜单根节点id
@@ -92,9 +92,8 @@ class Nav extends Component {
     }
 
     // 点击修改密码，弹出ChangePasswordForm
-    changePassword(e) {
+    changePassword = () => {
         this.form.resetFields();
-        // 修改state中的{}的第一种方法
         this.state.form.isVisible = true;
         this.setState(this.state.form);
     }
@@ -106,10 +105,8 @@ class Nav extends Component {
 
     // 点击ChangePasswordForm的取消
     handleCancel = (e) => {
-        // 修改state中的{}的第二种方法
-        this.setState({
-            form: Object.assign({}, this.state.form, {isVisible: false})
-        });
+        this.state.form.isVisible = false;
+        this.setState(this.state.form);
     }
 
     // 点击ChangePasswordForm的确定

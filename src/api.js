@@ -35,7 +35,7 @@ export const deleteMenu = (userId) => axios.delete(host + '/mng/menu/' + userId)
 
 // user相关
 export const queryUser = (query) => axios.post(host + '/mng/user/query', query);
-export const getUser = (userId) => axios.get(host + '/mng/user' + userId);
+export const getUser = (userId) => axios.get(host + '/mng/user/' + userId);
 export const addUser = (username, realname) => axios.post(host + '/mng/user', {username: username, realname: realname});
 export const updateUser = (userId, username, realname) => axios.put(host + '/mng/user/' + userId, {username: username, realname: realname});
 export const deleteUser = (userId) => axios.delete(host + '/mng/user/' + userId);

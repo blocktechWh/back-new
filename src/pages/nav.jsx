@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
-import {Layout, Menu, Icon, Popconfirm, message, Button} from 'antd';
 import {Link} from 'react-router';
-import {changePwd} from '../api';
-import ChangePasswordForm from './nav.pwd';
+import {Layout, Menu, Icon, Popconfirm, message, Button} from 'antd';
 const {Item, SubMenu} = Menu;
 const {Content, Sider, Footer, Header} = Layout;
-import {queryMenu, logout} from '../api';
+
+import ChangePasswordForm from './nav.pwd';
+import Api from '../api';
 
 // 包含ChangePasswordForm组件，用于用户修改密码
 class Nav extends React.Component {
@@ -22,7 +22,7 @@ class Nav extends React.Component {
 
     componentDidMount() {
         // 查询所有菜单
-        queryMenu().then((res) => {
+        Api.queryMenu().then((res) => {
             let selectedKeys;
             res.data.map((item) => {
                 if (item.menuName) {
@@ -59,7 +59,7 @@ class Nav extends React.Component {
         this.setState({
             loading: true
         });
-        logout().then(res => {
+        Api.logout().then(res => {
             if (res.code === '000') {
                 this.props.router.push('/');
                 this.setState({
@@ -113,7 +113,7 @@ class Nav extends React.Component {
     handleOk = (e) => {
         this.setState({loading: true});
         let formData = this.form.getFieldsValue();
-        changePwd(formData).then(res => {
+        Api.changePwd(formData).then(res => {
             this.state.form.isVisible = false;
             this.setState(this.state.form);
             message.success('修改密码成功！');

@@ -44,11 +44,6 @@ export const eventProxy = {
 }
 
 // 日期时间格式化
-const formatNumber = n => {
-    n = n.toString()
-    return n[1] ? n : '0' + n
-}
-
 export const formatTime = date => {
     const year = date.getFullYear()
     const month = date.getMonth() + 1
@@ -57,7 +52,11 @@ export const formatTime = date => {
     const minute = date.getMinutes()
     const second = date.getSeconds()
 
-    return [year, month, day].map(formatNumber).join('-') + ' ' + [hour, minute, second].map(formatNumber).join(':')
+    let padStr = n => {
+        return n.toString().padStart(2, '0');
+    }
+
+    return [year, month, day].map(padStr).join('-') + ' ' + [hour, minute, second].map(padStr).join(':')
 }
 
 // 查询条件
@@ -83,19 +82,10 @@ export class And {
         }
     }
 }
-export class Or {
-    constructor(field, value, oper) {
+export class Or extends And {
+    constructor(...args) {
+        super(...args);
         this.combo = 'or';
-        this.conditions = new Array();
-        this.conditions.push(new Condition(...arguments));
-    }
-
-    add() {
-        if (arguments.length === 1) {
-            this.conditions.push(arguments);
-        } else {
-            this.conditions.push(new Condition(...arguments));
-        }
     }
 }
 export class Order {

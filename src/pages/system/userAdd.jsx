@@ -2,14 +2,14 @@ import React from 'react';
 import {Modal, Button, Form, Input, Message} from 'antd';
 const FormItem = Form.Item;
 
-import {addUser} from '../../api';
+import Api from '../../api';
 import {eventProxy} from '../../utils';
 
 class UserAddForm extends React.Component {
     doAdd = () => {
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                addUser(values.username, values.realname).then(res => {
+                Api.addUser(values.username, values.realname).then(res => {
                     eventProxy.trigger('reloadEvent');
                     Message.info("新增用户成功");
                     this.props.onClose();

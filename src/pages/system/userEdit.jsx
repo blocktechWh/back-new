@@ -2,7 +2,7 @@ import React from 'react';
 import {Modal, Button, Form, Input, Message} from 'antd';
 const FormItem = Form.Item;
 
-import {getUser, updateUser} from '../../api';
+import Api from '../../api';
 import {eventProxy} from '../../utils';
 
 class UserEditForm extends React.Component {
@@ -18,7 +18,7 @@ class UserEditForm extends React.Component {
             console.log("componentWillReceiveProps, dataKeys=" + nextProps.dataKeys);
 
             // 加载数据
-            getUser(nextProps.dataKeys[0]).then(res => {
+            Api.getUser(nextProps.dataKeys[0]).then(res => {
                 this.setState({
                     record: res.data
                 });
@@ -29,7 +29,7 @@ class UserEditForm extends React.Component {
     doEdit = () => {
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                updateUser(this.state.record.id, values.username, values.realname).then(res => {
+                Api.updateUser(this.state.record.id, values.username, values.realname).then(res => {
                     eventProxy.trigger('reloadEvent');
                     Message.info("编辑用户成功");
                     this.props.onClose();

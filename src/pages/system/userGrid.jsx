@@ -1,11 +1,11 @@
 import React from 'react';
-import {Table, Modal, Form, Button, message, Popconfirm, Select, Input, DatePicker, Switch, Row, Col, Message} from 'antd';
+import {Table, Button, Popconfirm, message} from 'antd';
 
 import ViewForm from './userView';
 import AddForm from './userAdd';
 import EditForm from './userEdit';
 
-import {queryUser, deleteUser} from '../../api';
+import Api from '../../api';
 import {eventProxy, formatTime, And, Or, Oper, Order} from '../../utils';
 
 export default class UserGrid extends React.Component {
@@ -19,7 +19,7 @@ export default class UserGrid extends React.Component {
 		dataSource: [], // 列表数据源
 		selectedRowKeys: [], // 已选中记录
 		pagination: { // 分页信息
-			defaultPageSize: 1,
+			defaultPageSize: 20,
 			total: 0,
 			showSizeChanger: true,
 			showQuickJumper: true,
@@ -43,18 +43,19 @@ export default class UserGrid extends React.Component {
 		eventProxy.on('queryEvent', (values) => {
 			console.log("queryEvent:" + JSON.stringify(values));
 			// 设置状态，保存查询条件
-			this.state.queryData = values;
-			this.setState(this.state.queryData);
-			// 触发查询方法
-			this.doQuery();
+			this.setState({queryData: values, selectedRowKeys: []}, () => {
+				// 触发查询方法
+				this.doQuery();
+			});
 		});
 		// 监听事件（刷新）
 		eventProxy.on('reloadEvent', () => {
 			console.log("reloadEvent");
 			// 设置状态，清空选中记录
-			this.setState({selectedRowKeys: []});
-			// 触发查询方法
-			this.doQuery();
+			this.setState({selectedRowKeys: []}, () => {
+				// 触发查询方法
+				this.doQuery();
+			});
 		});
 	}
 
@@ -63,7 +64,12 @@ export default class UserGrid extends React.Component {
 		console.log("doQuery, queryData=" + JSON.stringify(this.state.queryData));
 		console.log("doQuery, pagination=" + JSON.stringify(this.state.pagination));
 		console.log("doQuery, filters=" + JSON.stringify(this.state.filters));
-		console.log("doQuery, sorter=" + JSON.stringify(this.state.sorter));
+		let sorter = {
+			columnKey: this.state.sorter.columnKey,
+			field: this.state.sorter.field,
+			order: this.state.sorter.order
+		};
+		console.log("doQuery, sorter=" + JSON.stringify(sorter));
 
 		this.setState({loading: true});
 
@@ -84,7 +90,7 @@ export default class UserGrid extends React.Component {
 		console.log("doQuery, query=" + JSON.stringify(query));
 
 		// 查询
-		queryUser(query).then(res => {
+		Api.queryUser(query).then(res => {
 			// 设置每一条数据的key
 			// Each record in table should have a unique `key` prop,or set `rowKey` to an unique primary key.
 			res.data.rows.map((item, index) => {
@@ -97,20 +103,14 @@ export default class UserGrid extends React.Component {
 			});
 
 			console.log("doQuery, total=" + res.data.total);
-			this.state.pagination.total = res.data.total;
-			this.setState(this.state.pagination);
+			let pagination = this.state.pagination;
+			pagination.total = res.data.total;
+			this.setState(pagination);
 		});
 	}
 
 	// 分页、排序、筛选变化时触发
 	doTableChange = (pagination, filters, sorter) => {
-		this.state.pagination = pagination;
-		this.state.filters = filters;
-		this.state.sorter = {
-			columnKey: sorter.columnKey,
-			field: sorter.field,
-			order: sorter.order
-		};
 		this.setState({
 			pagination,
 			filters,
@@ -128,9 +128,9 @@ export default class UserGrid extends React.Component {
 	doDelete = () => {
 		console.log("doDelete, keys=" + this.state.selectedRowKeys);
 
-		deleteUser(this.state.selectedRowKeys[0]).then(res => {
+		Api.deleteUser(this.state.selectedRowKeys[0]).then(res => {
 			eventProxy.trigger('reloadEvent');
-			Message.info("删除用户成功");
+			message.info("删除用户成功");
 		});
 	}
 
@@ -232,12 +232,6 @@ export default class UserGrid extends React.Component {
 				return <div> <Button type="primary" onClick={() => {this.assignRole(record.key)}}>分配</Button> </div>
 			}
 		}];
-
-		// 单个Col的列宽设定（24 栅格）
-		const formItemLayout = {
-			labelCol: {span: 8}, // label列宽
-			wrapperCol: {span: 16} // 控件列宽
-		};
 
 		// 选中记录变化
 		const {selectedRowKeys} = this.state;

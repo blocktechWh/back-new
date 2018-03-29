@@ -2,7 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import {Form, Icon, Input, Button, Checkbox, message} from 'antd';
 const FormItem = Form.Item;
-import {login} from '../api';
+import Api from '../api';
 
 class Login extends React.Component {
     componentDidMount() {
@@ -17,19 +17,18 @@ class Login extends React.Component {
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                login(values.userName, values.password).then(res => {
-                    console.log("get token=" + res.data.token);
-                    localStorage.setItem('token', res.data.token);
-                    // 主动写入内存。因为localStorage存在读写时差，导致接下来的接口调用获取错误token
-                    axios.defaults.headers.common['Authorization'] = res.data.token;
-                    this.props.router.push('/nav/system/user');
-                    this.setState({loading: false});
-                }).catch(function (error) {
-                    if (error.status) {
-                        message.error(error.msg);
+                Api.login(values.userName, values.password).then(res => {
+                    if (200 === res.status) {
+                        console.log("get token=" + res.data.token);
+                        localStorage.setItem('token', res.data.token);
+                        // 主动写入内存。因为localStorage存在读写时差，导致接下来的接口调用获取错误token
+                        axios.defaults.headers.common['Authorization'] = res.data.token;
+                        this.props.router.push('/nav/system/user');
                     } else {
-                        message.error(error);
+                        message.error(res.msg);
                     }
+
+                    this.setState({loading: false});
                 });
             }
         });

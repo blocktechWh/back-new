@@ -1,7 +1,7 @@
 import React from 'react';
 import {Modal, Button, List} from 'antd';
 
-import {getUser} from '../../api';
+import Api from '../../api';
 
 export default class UserViewModal extends React.Component {
     // 定义状态属性
@@ -16,7 +16,7 @@ export default class UserViewModal extends React.Component {
             console.log("componentWillReceiveProps, dataKeys=" + nextProps.dataKeys);
 
             // 加载数据
-            getUser(nextProps.dataKeys[0]).then(res => {
+            Api.getUser(nextProps.dataKeys[0]).then(res => {
                 this.setState({
                     record: res.data
                 });

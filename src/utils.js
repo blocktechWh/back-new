@@ -59,26 +59,47 @@ export const formatTime = date => {
     return [year, month, day].map(padStr).join('-') + ' ' + [hour, minute, second].map(padStr).join(':')
 }
 
+// 条件比较符
+export const Oper = {
+    like: 'OPER_LIKE',
+    leftLike: 'OPER_LIKE_LEFT',
+    rightLike: 'OPER_LIKE_RIGHT',
+    notLike: 'OPER_NOT_LIKE',
+
+    equal: 'OPER_EQUAL',
+    big: 'OPER_BIG',
+    small: 'OPER_SMALL',
+    bigEqual: 'OPER_BIG_EQUAL',
+    smallEqual: 'OPER_SMALL_EQUAL',
+    noEqual: 'OPER_NO_EQUAL',
+
+    after: 'OPER_BIG_EQUAL_DATE',
+    before: 'OPER_SMALL_EQUAL_DATE',
+
+    in: 'OPER_IN',
+    notIn: 'OPER_NOT_IN',
+}
+
 // 查询条件
 class Condition {
-    constructor(field, value = "", oper = Oper.equal) {
+    constructor(field, value = '', oper = Oper.equal) {
         this.field = field;
         this.value = value;
         this.oper = oper;
     }
 };
 export class And {
-    constructor(field, value, oper) {
+    constructor(...args) {
         this.combo = 'and';
-        this.conditions = new Array();
-        this.conditions.push(new Condition(...arguments));
+        this.conditions = [];
+        this.conditions.push(new Condition(...args));
     }
 
-    add() {
-        if (arguments.length === 1) {
-            this.conditions.push(arguments);
+    add(...args) {
+        if (args.length === 1) {
+            this.conditions.push(args);
         } else {
-            this.conditions.push(new Condition(...arguments));
+            this.conditions.push(new Condition(...args));
         }
     }
 }
@@ -98,25 +119,4 @@ export class Order {
         this.field = field;
         this.value = value;
     }
-}
-
-// 条件比较符
-export const Oper = {
-    like: "OPER_LIKE",
-    leftLike: "OPER_LIKE_LEFT",
-    rightLike: "OPER_LIKE_RIGHT",
-    notLike: "OPER_NOT_LIKE",
-
-    equal: "OPER_EQUAL",
-    big: "OPER_BIG",
-    small: "OPER_SMALL",
-    bigEqual: "OPER_BIG_EQUAL",
-    smallEqual: "OPER_SMALL_EQUAL",
-    noEqual: "OPER_NO_EQUAL",
-
-    after: "OPER_BIG_EQUAL_DATE",
-    before: "OPER_SMALL_EQUAL_DATE",
-
-    in: "OPER_IN",
-    notIn: "OPER_NOT_IN"
 }

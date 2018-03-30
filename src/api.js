@@ -3,7 +3,7 @@ import qs from 'qs'; // qs 用于格式化查询字符串
 import {message} from 'antd';
 
 // 定义通用头信息
-axios.defaults.headers.common['Authorization'] = localStorage.getItem("token") || '';
+axios.defaults.headers.common['Authorization'] = localStorage.getItem('token') || '';
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8';
 axios.defaults.headers.put['Content-Type'] = 'application/json;charset=UTF-8';
@@ -16,12 +16,12 @@ axios.defaults.validateStatus = function validateStatus(status) {
 
 // 响应预处理
 axios.interceptors.response.use(function (response) {
-	console.log(response.status + "响应，返回" + JSON.stringify(response.data));
+	console.log(response.status + '响应，返回' + JSON.stringify(response.data));
 	response.data.status = response.status;
 	return response.data;
 }, function (error) {
-	console.log("请求失败：" + error.message);
-	message.error("请求失败：" + error.message);
+	console.log('请求失败：' + error.message);
+	message.error('请求失败：' + error.message);
 	return Promise.reject(error.message);
 });
 
@@ -49,7 +49,7 @@ export default {
 
 
 	deletesUser: (ids) => axios.get(host + '/mng/user/deletes?ids=' + ids),
-	users: (offset, pageSize, obj) => axios.get(host + '/mng/user/page/' + offset + '/' + pageSize + "?" + qs.stringify(obj)),
+	users: (offset, pageSize, obj) => axios.get(host + '/mng/user/page/' + offset + '/' + pageSize + '?' + qs.stringify(obj)),
 	usersName: (offset, pageSize, orderIdentity, isDesc) => axios.get(host + '/mng/user/page/' + offset + '/' + pageSize, orderIdentity ? {queryOrder: [{orderIdentity, isDesc}]} : {}),
 	fontUsersName: (offset, pageSize, orderIdentity, isDesc) => axios.post(host + '/admin/user/page/' + offset + '/' + pageSize, orderIdentity ? {queryOrder: [{orderIdentity, isDesc}]} : {}),
 	fontUsers: (offset, pageSize, obj) => axios.post(host + '/admin/gift/page/' + offset + '/' + pageSize, obj),
@@ -70,6 +70,6 @@ export default {
 
 	getEntryList: (offset, pageSize, obj) => axios.post(host + '/admin/walletTakeLog/page/' + offset + '/' + pageSize, obj),
 
-	getExistList: (offset, pageSize, obj) => axios.post(host + '/admin/walletTakeLog/page/' + offset + '/' + pageSize, obj)
+	getExistList: (offset, pageSize, obj) => axios.post(host + '/admin/walletTakeLog/page/' + offset + '/' + pageSize, obj),
 
 }

@@ -57,6 +57,8 @@ export default class UserGrid extends React.Component {
 				this.doQuery();
 			});
 		});
+		// 初始查询
+		this.doQuery();
 	}
 
 	// 查询
@@ -91,21 +93,25 @@ export default class UserGrid extends React.Component {
 
 		// 查询
 		Api.queryUser(query).then(res => {
-			// 设置每一条数据的key
-			// Each record in table should have a unique `key` prop,or set `rowKey` to an unique primary key.
-			res.data.rows.map((item, index) => {
-				return item.key = item.id;
-			});
+			if (200 === res.status) {
+				// 设置每一条数据的key
+				// Each record in table should have a unique `key` prop,or set `rowKey` to an unique primary key.
+				res.data.rows.map((item, index) => {
+					return item.key = item.id;
+				});
 
-			this.setState({
-				loading: false,
-				dataSource: res.data.rows
-			});
+				console.log("doQuery, total=" + res.data.total);
+				let pagination = this.state.pagination;
+				pagination.total = res.data.total;
+				this.setState({
+					dataSource: res.data.rows,
+					pagination,
+				});
+			} else {
+				message.error(res.msg);
+			}
 
-			console.log("doQuery, total=" + res.data.total);
-			let pagination = this.state.pagination;
-			pagination.total = res.data.total;
-			this.setState(pagination);
+			this.setState({loading: false});
 		});
 	}
 

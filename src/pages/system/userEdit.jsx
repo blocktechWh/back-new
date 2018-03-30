@@ -44,7 +44,7 @@ class UserEditForm extends React.Component {
 
     render() {
         let {visible, onClose} = this.props;
-        let {getFieldDecorator, getFieldsError, getFieldError, isFieldTouched} = this.props.form;
+        let {getFieldDecorator} = this.props.form;
 
         let usernameConfig = {
             rules: [{required: true, message: '用户名不可为空!'}],
@@ -81,7 +81,7 @@ class UserEditForm extends React.Component {
                             <Input />
                         )}
                     </FormItem>
-                    <FormItem label="姓名"  {...formItemLayout} >
+                    <FormItem label="姓名"  {...formItemLayout}>
                         {getFieldDecorator('realname', userRealnameConfig)(
                             <Input />
                         )}

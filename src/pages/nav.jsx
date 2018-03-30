@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {Link} from 'react-router';
 import {Layout, Menu, Icon, Popconfirm, message, Button} from 'antd';
 const {Item, SubMenu} = Menu;
@@ -23,24 +23,22 @@ class Nav extends React.Component {
     componentDidMount() {
         // 查询所有菜单
         Api.queryMenu().then((res) => {
-            let selectedKeys;
-            res.data.map((item) => {
-                if (item.menuName) {
-                    item.icon = item.icon;
-                    item.route = item.url;
-                }
-                if (item.route === this.props.location.pathname) {
-                    item.route = '';
-                    selectedKeys = [item.id.toString()];
-                }
-                return item;
-            });
-            this.setState({'menu': res.data, 'selectedKeys': selectedKeys});
-        }).catch(function (error) {
-            if (error.status) {
-                message.error(error.msg);
+            if (200 === res.status) {
+                let selectedKeys;
+                res.data.map((item) => {
+                    if (item.menuName) {
+                        item.icon = item.icon;
+                        item.route = item.url;
+                    }
+                    if (item.route === this.props.location.pathname) {
+                        item.route = '';
+                        selectedKeys = [item.id.toString()];
+                    }
+                    return item;
+                });
+                this.setState({'menu': res.data, 'selectedKeys': selectedKeys});
             } else {
-                message.error(error);
+                message.error(res.msg);
             }
         });
     }

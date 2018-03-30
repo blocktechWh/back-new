@@ -24,7 +24,7 @@ class UserAddForm extends React.Component {
 
     render() {
         let {visible, onClose} = this.props;
-        let {getFieldDecorator, getFieldsError, getFieldError, isFieldTouched} = this.props.form;
+        let {getFieldDecorator} = this.props.form;
 
         let usernameConfig = {
             rules: [{required: true, message: '用户名不可为空!'}]
@@ -55,7 +55,7 @@ class UserAddForm extends React.Component {
                 }
             >
                 <Form layout="vertical">
-                    <FormItem label="用户名"  {...formItemLayout}>
+                    <FormItem label="用户名"  {...formItemLayout} >
                         {getFieldDecorator('username', usernameConfig)(
                             <Input />
                         )}

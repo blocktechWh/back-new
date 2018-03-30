@@ -13,7 +13,6 @@ class Login extends React.Component {
     }
 
     handleSubmit = (e) => {
-        this.setState({loading: true});
         e.preventDefault();
         this.props.form.validateFields((err, values) => {
             if (!err) {
@@ -27,8 +26,6 @@ class Login extends React.Component {
                     } else {
                         message.error(res.msg);
                     }
-
-                    this.setState({loading: false});
                 });
             }
         });

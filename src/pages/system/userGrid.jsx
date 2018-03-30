@@ -9,85 +9,80 @@ import Api from '../../api';
 import {eventProxy, formatTime, And, Or, Oper, Order} from '../../utils';
 
 export default class UserGrid extends React.Component {
+	// 页面即将加载
+	componentWillMount() {
+		// 监听查询事件
+		eventProxy.on('queryEvent', (values) => {
+			console.log("queryEvent");
+			this.queryData = values;
+			this.selectedRowKeys = [];
+			this.doQuery();
+		});
+
+		// 监听刷新事件
+		eventProxy.on('reloadEvent', () => {
+			console.log("reloadEvent");
+			this.selectedRowKeys = [];
+			this.doQuery();
+		});
+
+		// 定义内部属性
+		this.queryData = {}; // 查询表单数据
+		this.filters = {}; // 过滤信息
+		// 排序信息
+		this.sorter = {
+			columnKey: '',
+			field: '',
+			order: '',
+		};
+	}
+
 	// 定义状态属性
 	state = {
-		// 外部数据
-		queryData: {}, // 查询表单数据
-
-		// 组件数据
 		loading: false, // 是否加载中
 		dataSource: [], // 列表数据源
-		selectedRowKeys: [], // 已选中记录
+		selectedRowKeys: [],// 已选中记录
 		pagination: { // 分页信息
 			defaultPageSize: 20,
 			total: 0,
 			showSizeChanger: true,
 			showQuickJumper: true,
 			showTotal: total => `共 ${total} 条`,
-			onShowSizeChange: (current, pageSize) => {}
 		},
-		filters: {}, // 过滤信息
-		sorter: {}, // 排序信息
 
 		// 子组件相关
 		isViewShow: false,
 		isAddShow: false,
 		isEditShow: false,
 		viewKeys: [],
-		editKeys: []
-	}
-
-	// 页面加载
-	componentDidMount() {
-		// 监听事件（查询）
-		eventProxy.on('queryEvent', (values) => {
-			console.log("queryEvent:" + JSON.stringify(values));
-			// 设置状态，保存查询条件
-			this.setState({queryData: values, selectedRowKeys: []}, () => {
-				// 触发查询方法
-				this.doQuery();
-			});
-		});
-		// 监听事件（刷新）
-		eventProxy.on('reloadEvent', () => {
-			console.log("reloadEvent");
-			// 设置状态，清空选中记录
-			this.setState({selectedRowKeys: []}, () => {
-				// 触发查询方法
-				this.doQuery();
-			});
-		});
-		// 初始查询
-		this.doQuery();
+		editKeys: [],
 	}
 
 	// 查询
 	doQuery = () => {
-		console.log("doQuery, queryData=" + JSON.stringify(this.state.queryData));
+		console.log("doQuery, queryData=" + JSON.stringify(this.queryData));
 		console.log("doQuery, pagination=" + JSON.stringify(this.state.pagination));
-		console.log("doQuery, filters=" + JSON.stringify(this.state.filters));
-		let sorter = {
-			columnKey: this.state.sorter.columnKey,
-			field: this.state.sorter.field,
-			order: this.state.sorter.order
-		};
-		console.log("doQuery, sorter=" + JSON.stringify(sorter));
+		console.log("doQuery, filters=" + JSON.stringify(this.filters));
+		console.log("doQuery, sorter=" + JSON.stringify(this.sorter));
 
 		this.setState({loading: true});
 
-		// 组织查询数据
-		let and = new And("userName", this.state.queryData.username, Oper.like);
-		and.add("userState", this.state.queryData.state);
-
+		// 查询条件
+		let and = new And("userName", this.queryData.username, Oper.like);
+		and.add("userState", this.queryData.state);
+		and.add("createTime", this.queryData.regDate[0], Oper.after);
+		and.add("createTime", this.queryData.regDate[1], Oper.before);
+		// 分页信息
 		let pageSize = this.state.pagination.pageSize || this.state.pagination.defaultPageSize;
 		let current = this.state.pagination.current || 1;
-
 		let query = {
 			query: and,
 			start: pageSize * (current - 1),
 			limit: pageSize,
-			sortBy: "id",
-			sortDir: "asc"
+		}
+		// 排序条件
+		if (this.sorter.field) {
+			query.order = new Order(this.sorter.field, this.sorter.order);
 		}
 		console.log("doQuery, query=" + JSON.stringify(query));
 
@@ -100,7 +95,6 @@ export default class UserGrid extends React.Component {
 					return item.key = item.id;
 				});
 
-				console.log("doQuery, total=" + res.data.total);
 				let pagination = this.state.pagination;
 				pagination.total = res.data.total;
 				this.setState({
@@ -117,11 +111,13 @@ export default class UserGrid extends React.Component {
 
 	// 分页、排序、筛选变化时触发
 	doTableChange = (pagination, filters, sorter) => {
-		this.setState({
-			pagination,
-			filters,
-			sorter
-		});
+		this.filters = filters;
+
+		this.sorter.columnKey = sorter.columnKey;
+		this.sorter.field = sorter.field;
+		this.sorter.order = sorter.order;
+
+		this.setState({pagination});
 		eventProxy.trigger('reloadEvent');
 	}
 
@@ -152,46 +148,18 @@ export default class UserGrid extends React.Component {
 
 	// ------子组件：查看------
 	linkViewForm = (obj) => this.viewForm = obj;
-	showViewForm = () => {
-		this.setState({
-			viewKeys: this.state.selectedRowKeys,
-			isViewShow: true
-		});
-	}
-	closeViewForm = () => {
-		this.setState({
-			viewKeys: [],
-			isViewShow: false
-		});
-	}
+	showViewForm = () => {this.setState({viewKeys: this.state.selectedRowKeys, isViewShow: true});}
+	closeViewForm = () => {this.setState({viewKeys: [], isViewShow: false});}
 
 	// ------子组件：新增------
 	linkAddForm = (obj) => this.addForm = obj;
-	showAddForm = () => {
-		this.setState({
-			isAddShow: true
-		});
-	}
-	closeAddForm = () => {
-		this.setState({
-			isAddShow: false
-		});
-	}
+	showAddForm = () => {this.setState({isAddShow: true});}
+	closeAddForm = () => {this.setState({isAddShow: false});}
 
 	// ------子组件：编辑------
 	linkEditForm = (obj) => this.editForm = obj;
-	showEditForm = () => {
-		this.setState({
-			editKeys: this.state.selectedRowKeys,
-			isEditShow: true
-		});
-	}
-	closeEditForm = () => {
-		this.setState({
-			editKeys: [],
-			isEditShow: false
-		});
-	}
+	showEditForm = () => {this.setState({editKeys: this.state.selectedRowKeys, isEditShow: true});}
+	closeEditForm = () => {this.setState({editKeys: [], isEditShow: false});}
 
 	// render
 	render() {

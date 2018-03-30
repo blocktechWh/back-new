@@ -6,9 +6,15 @@ const RangePicker = DatePicker.RangePicker;
 import {eventProxy} from '../../utils';
 
 class UserQueryForm extends React.Component {
+	// 页面加载完成
+	componentDidMount() {
+		// 初始查询
+		this.doSearch();
+	}
+
 	// 查询，使用观察者模式通知表格
 	doSearch = (e) => {
-		e.preventDefault();
+		if (e) e.preventDefault();
 		this.props.form.validateFields((err, values) => {
 			if (!err) {
 				eventProxy.trigger('queryEvent', values);

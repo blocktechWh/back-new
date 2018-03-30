@@ -110,13 +110,15 @@ export class Or extends And {
     }
 }
 export class Order {
-    constructor(field, value = 'asc') {
-        if (value !== 'desc') {
+    constructor(field, value) {
+        if (value === 'ascend') {
             value = 'asc';
+        } else if (value === 'descend') {
+            value = 'desc';
         }
 
         this.combo = 'order';
-        this.field = field;
-        this.value = value;
+        this.conditions = [];
+        this.conditions.push(new Condition(field, value));
     }
 }

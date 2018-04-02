@@ -1,6 +1,8 @@
 import React from 'react';
-import {Form, Modal, Input} from 'antd';
+import {Form, Modal, Input, message} from 'antd';
 const FormItem = Form.Item;
+
+import Api from '../api';
 
 // 修改密码
 class ChangePasswordForm extends React.Component {
@@ -30,9 +32,20 @@ class ChangePasswordForm extends React.Component {
         this.setState({confirmDirty: this.state.confirmDirty || !!value});
     }
 
+    // 点击ChangePasswordForm的确定
+    handleOk = (e) => {
+        e.preventDefault();
+
+        let formData = this.props.form.getFieldsValue();
+        Api.changePwd(formData).then(res => {
+            this.props.onClose();
+            message.success('修改密码成功！');
+        });
+    }
+
     render() {
         // 外部传参
-        let {visible, handleOk, handleCancel, form} = this.props;
+        let {visible, onClose, form} = this.props;
 
         // 元素样式
         let formItemLayout = {
@@ -53,10 +66,11 @@ class ChangePasswordForm extends React.Component {
         return (
             <Modal
                 visible={visible}
-                title="编辑用户"
+                title="修改密码"
                 okText="确定"
-                onOk={handleOk}
-                onCancel={handleCancel}
+                cancelText="取消"
+                onOk={this.handleOk}
+                onCancel={onClose}
             >
                 <Form layout="vertical">
                     <FormItem label="原密码"  {...formItemLayout}>

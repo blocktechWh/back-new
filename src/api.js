@@ -31,7 +31,7 @@ const host = 'http://127.0.0.1:8080';
 // api
 export default {
 	login: (username, password) => axios.post(host + '/mng/login', {name: username, pwd: password}),
-	logout: () => axios.get(host + '/mng/logout'),
+	logout: () => axios.post(host + '/mng/logout'),
 
 	// menu相关
 	queryMenu: (query) => axios.post(host + '/mng/menu/query', query),

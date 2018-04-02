@@ -3,6 +3,10 @@ import QueryForm from './userQuery';
 import DataGrid from './userGrid';
 
 export default class User extends React.Component {
+	componentWillMount() {
+		console.log(this.props.functions)
+	}
+
 	render() {
 		return (
 			<div>

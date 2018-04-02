@@ -10,6 +10,9 @@ import Login from './pages/login';
 import Welcome from './pages/login';
 import NotFound from './pages/notFound';
 
+// 首页
+import Home from './pages/homepage';
+
 // 开发者模式
 
 // 系统管理：用户、角色、菜单、菜单功能
@@ -28,6 +31,7 @@ const RouteConfig =
             <Route path="/login" component={Login}></Route>
             <Route path="/404" component={NotFound}></Route>
             <Route path="/nav" component={Nav}>
+                <Route path="/nav/home" component={Home}></Route>
                 /** 开发者模式 */
                 /** 系统管理 */
                 <Route path="/nav/system/user" component={User}></Route>

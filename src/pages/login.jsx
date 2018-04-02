@@ -22,7 +22,12 @@ class Login extends React.Component {
                         localStorage.setItem('token', res.data.token);
                         // 主动写入内存。因为localStorage存在读写时差，导致接下来的接口调用获取错误token
                         axios.defaults.headers.common['Authorization'] = res.data.token;
-                        this.props.router.push('/nav/system/user');
+
+                        // 用户权限相关
+                        localStorage.setItem('menuCodes', res.data.menuCodes);
+                        localStorage.setItem('functionCodes', res.data.functionCodes);
+
+                        this.props.router.push('/nav/home');
                     } else {
                         message.error(res.msg);
                     }

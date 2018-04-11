@@ -8,13 +8,14 @@ import ChangePasswordForm from './nav.pwd';
 import Api from '../api';
 import {fullMenu, getMenuInfo} from '../menuFunc';
 
-class Nav extends React.Component {
+export default class extends React.Component {
     componentWillMount() {
         // 定义内部属性
         let menuCodes = localStorage.getItem('menuCodes');
         let {menuCountMap, routeFuncMap} = getMenuInfo(menuCodes);
         this.menuCountMap = menuCountMap;
         this.routeFuncMap = routeFuncMap;
+        this.functionCodes = localStorage.getItem('functionCodes');
     }
 
     state = {
@@ -63,8 +64,17 @@ class Nav extends React.Component {
 
         // 传参到功能页面
         const childrenWithParams = React.Children.map(this.props.children, (child) => {
+            let functions = []; // 定义的功能和用户后台功能的并集
+            if (this.routeFuncMap.get(child.props.route.path)) {
+                for (let func of this.routeFuncMap.get(child.props.route.path)) {
+                    if (this.functionCodes && this.functionCodes.includes(func)) {
+                        functions.push(func);
+                    }
+                }
+            }
+
             return React.cloneElement(child, {
-                'functions': this.routeFuncMap.get(child.props.route.path),
+                'functions': functions, // 页面功能
             })
         });
 
@@ -79,11 +89,11 @@ class Nav extends React.Component {
                     {/* 系统名称 */}
                     <span style={{color: '#000'}}>这里放系统名称</span>
                     {/* 功能按钮 */}
-                    <div style={{float: 'right', width: 80}}>
+                    <div style={{float: 'right', width: 160}}>
                         <ChangePasswordForm visible={this.state.isFormShow} onClose={this.closeForm} />
-                        <Button style={{marginLeft: -66, marginTop: 19, width: 65, paddingLeft: 10, background: '#fff', border: 'none', color: '#000'}} type="dashed" onClick={this.showForm}>修改密码</Button>
+                        <Button onClick={this.showForm}>修改密码</Button>
                         <Popconfirm placement="topRight" title="确认要退出系统吗？" onConfirm={this.handleLoginOut.bind(this)} okText="确认" cancelText="取消">
-                            <Button style={{marginTop: 19, width: 65, marginLeft: 10, background: '#fff', border: 'none', color: '#000'}} type="primary">退出</Button>
+                            <Button >退出</Button>
                         </Popconfirm>
                     </div>
                 </Header>
@@ -108,5 +118,3 @@ class Nav extends React.Component {
         );
     }
 }
-
-export default Nav;

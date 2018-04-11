@@ -1,6 +1,6 @@
 import React from 'react';
-import QueryForm from './userQuery';
-import DataGrid from './userGrid';
+import QueryForm from './menuQuery';
+import DataGrid from './menuGrid';
 
 export default class extends React.Component {
 	componentWillMount() {

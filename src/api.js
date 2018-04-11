@@ -2,6 +2,9 @@ import axios from 'axios'; // Axios 是一个基于 promise 的 HTTP 库
 import qs from 'qs'; // qs 用于格式化查询字符串
 import {message} from 'antd';
 
+// 主机地址
+const host = 'http://127.0.0.1:8080';
+
 // 定义通用头信息
 axios.defaults.headers.common['Authorization'] = localStorage.getItem('token') || '';
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
@@ -14,9 +17,15 @@ axios.defaults.validateStatus = function validateStatus(status) {
 	return true;
 }
 
+// 请求预处理
+axios.interceptors.request.use(function (request) {
+	console.log(`请求[${request.method} ${request.url.replace(host, '')}], payload=${JSON.stringify(request.data)}`);
+	return request;
+});
+
 // 响应预处理
 axios.interceptors.response.use(function (response) {
-	console.log(response.status + '响应，返回' + JSON.stringify(response.data));
+	console.log(`响应[${response.config.method} ${response.config.url.replace(host, '')}], status=${response.status}, payload=${JSON.stringify(response.data)}`);
 	response.data.status = response.status;
 	return response.data;
 }, function (error) {
@@ -25,9 +34,6 @@ axios.interceptors.response.use(function (response) {
 	return Promise.reject(error.message);
 });
 
-// 主机地址
-const host = 'http://127.0.0.1:8080';
-
 // api
 export default {
 	login: (username, password) => axios.post(host + '/mng/login', {name: username, pwd: password}),
@@ -35,18 +41,17 @@ export default {
 
 	// menu相关
 	queryMenu: (query) => axios.post(host + '/mng/menu/query', query),
-	getMenu: (userId) => axios.get(host + '/mng/menu' + userId),
-	addMenu: (username, realname) => axios.post(host + '/mng/menu', {username: username, realname: realname}),
-	updateMenu: (userId, username, realname) => axios.put(host + '/mng/menu/' + userId, {username: username, realname: realname}),
-	deleteMenu: (userId) => axios.delete(host + '/mng/menu/' + userId),
+	getMenu: (menuId) => axios.get(host + '/mng/menu/' + menuId),
+	addMenu: (values) => axios.post(host + '/mng/menu', values),
+	updateMenu: (menuId, values) => axios.put(host + '/mng/menu/' + menuId, values),
+	deleteMenu: (menuId) => axios.delete(host + '/mng/menu/' + menuId),
 
 	// user相关
 	queryUser: (query) => axios.post(host + '/mng/user/query', query),
 	getUser: (userId) => axios.get(host + '/mng/user/' + userId),
-	addUser: (username, realname) => axios.post(host + '/mng/user', {username: username, realname: realname}),
-	updateUser: (userId, username, realname) => axios.put(host + '/mng/user/' + userId, {username: username, realname: realname}),
+	addUser: (values) => axios.post(host + '/mng/user', values),
+	updateUser: (userId, values) => axios.put(host + '/mng/user/' + userId, values),
 	deleteUser: (userId) => axios.delete(host + '/mng/user/' + userId),
-
 
 	deletesUser: (ids) => axios.get(host + '/mng/user/deletes?ids=' + ids),
 	users: (offset, pageSize, obj) => axios.get(host + '/mng/user/page/' + offset + '/' + pageSize + '?' + qs.stringify(obj)),

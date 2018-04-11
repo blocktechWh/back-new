@@ -5,7 +5,7 @@ const FormItem = Form.Item;
 const RangePicker = DatePicker.RangePicker;
 import {eventProxy} from '../../utils';
 
-class UserQueryForm extends React.Component {
+class QueryForm extends React.Component {
 	// 页面加载完成
 	componentDidMount() {
 		// 初始查询
@@ -48,21 +48,21 @@ class UserQueryForm extends React.Component {
 
 		// 单个Col的列宽设定（24 栅格）
 		const formItemLayout = {
-			labelCol: {span: 8}, // label列宽
+			labelCol: {span: 6}, // label列宽
 			wrapperCol: {span: 16} // 控件列宽
 		};
 
 		return (
 			<Form className="ant-search-form" onSubmit={this.doSearch}>
 				<Row>
-					<Col span={6}>
-						<FormItem label="用户名" labelCol={{span: 8}} wrapperCol={{span: 16}} >
+					<Col span={7}>
+						<FormItem label="用户名" {...formItemLayout}  >
 							{getFieldDecorator('username', usernameConfig)(
 								<Input placeholder="用户名" />
 							)}
 						</FormItem>
 					</Col>
-					<Col span={6}>
+					<Col span={7}>
 						<FormItem {...formItemLayout} label="用户状态" >
 							{getFieldDecorator('state', stateConfig)(
 								<Select>
@@ -73,14 +73,14 @@ class UserQueryForm extends React.Component {
 							)}
 						</FormItem>
 					</Col>
-					<Col span={8}>
+					<Col span={7}>
 						<FormItem {...formItemLayout} label="注册日期">
 							{getFieldDecorator('regDate', rangeConfig)(
 								<RangePicker disabledDate={afterToday} showTime format="YYYY-MM-DD HH:mm:ss" />
 							)}
 						</FormItem>
 					</Col>
-					<Col span={4} style={{marginTop: 4}}>
+					<Col span={3} style={{marginTop: 4}}>
 						<Button type="primary" icon="search" htmlType="submit" >查询</Button>
 						<Button type="primary" style={{marginLeft: 8}} onClick={this.handleReset}>重置</Button>
 					</Col>
@@ -90,4 +90,4 @@ class UserQueryForm extends React.Component {
 	}
 }
 
-export default Form.create()(UserQueryForm);
+export default Form.create()(QueryForm);

@@ -15,13 +15,12 @@ import Home from './pages/homepage';
 
 // 开发者模式
 
-// 系统管理：用户、角色、菜单、菜单功能
+// 系统管理：用户、角色、菜单及功能
 import User from './pages/system/user';
-import Role from './pages/system/user';
-import Menu from './pages/system/user';
-import Func from './pages/system/user';
+import Role from './pages/system/role';
+import Menu from './pages/system/menu';
 
-// 业务管理：会员、
+// 业务管理：会员
 import Member from './pages/busi/member';
 
 const RouteConfig =
@@ -35,6 +34,8 @@ const RouteConfig =
                 /** 开发者模式 */
                 /** 系统管理 */
                 <Route path="/nav/system/user" component={User}></Route>
+                <Route path="/nav/system/role" component={Role}></Route>
+                <Route path="/nav/system/menu" component={Menu}></Route>
                 /** 业务管理 */
                 <Route path="/nav/busi/member" component={Member}></Route>
             </Route>

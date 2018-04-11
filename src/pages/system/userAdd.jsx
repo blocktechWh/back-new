@@ -5,7 +5,7 @@ const FormItem = Form.Item;
 import Api from '../../api';
 import {eventProxy} from '../../utils';
 
-class UserAddForm extends React.Component {
+class AddForm extends React.Component {
     doAdd = () => {
         this.props.form.validateFields((err, values) => {
             if (!err) {
@@ -71,4 +71,4 @@ class UserAddForm extends React.Component {
     }
 }
 
-export default Form.create()(UserAddForm);
+export default Form.create()(AddForm);

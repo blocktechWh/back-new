@@ -5,7 +5,7 @@ const FormItem = Form.Item;
 import Api from '../../api';
 import {eventProxy} from '../../utils';
 
-class UserEditForm extends React.Component {
+class EditForm extends React.Component {
     // 定义状态属性
     state = {
         record: {}
@@ -92,4 +92,4 @@ class UserEditForm extends React.Component {
     }
 }
 
-export default Form.create()(UserEditForm);
+export default Form.create()(EditForm);

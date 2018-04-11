@@ -1,40 +1,50 @@
 // 菜单结构、跳转地址及页面功能
-export const fullMenu = [
-    {
-        key: 'homepage',
-        title: '首页',
-        icon: 'home',
-        route: '/nav/home',
-        isForceShow: true, // 必须菜单，强制显示
-    },
-    {
-        key: 'menu01',
-        title: '开发者模式',
-        icon: 'tool',
-        subMenus: [],
-    },
-    {
-        key: 'menu02',
-        title: '系统管理',
-        icon: 'setting',
-        subMenus: [
-            {
-                key: 'menu02.sub01',
-                title: '用户管理',
-                icon: 'user',
-                route: '/nav/system/user',
-                functions: ['func01'],
-            },
-            {
-                key: 'menu02.sub02',
-                title: '角色管理',
-                icon: '',
-                route: '/nav/system/role',
-                functions: [],
-            },
-        ],
-    },
-];
+export const fullMenu = [{
+    key: 'homepage',
+    title: '首页',
+    icon: 'home',
+    route: '/nav/home',
+    isForceShow: true, // 必须菜单，强制显示
+}, {
+    key: 'menu01',
+    title: '开发者模式',
+    icon: 'tool',
+    subMenus: [],
+}, {
+    key: 'menu02',
+    title: '系统管理',
+    icon: 'setting',
+    subMenus: [{
+        key: 'menu02.sub01',
+        title: '用户管理',
+        icon: 'user',
+        route: '/nav/system/user',
+        functions: ['getUser', 'queryUser', 'addUser', 'editUser', 'deleteUser'],
+    }, {
+        key: 'menu02.sub02',
+        title: '角色管理',
+        icon: '',
+        route: '/nav/system/role',
+        functions: [],
+    }, {
+        key: 'menu02.sub03',
+        title: '菜单管理',
+        icon: '',
+        route: '/nav/system/menu',
+        functions: ['getMenu', 'queryMenu', 'addMenu', 'editMenu', 'deleteMenu'],
+    }],
+}, {
+    key: 'menu03',
+    title: '业务管理',
+    icon: 'setting',
+    subMenus: [{
+        key: 'menu03.sub01',
+        title: '设备管理',
+        icon: '',
+        route: '/nav/system/user',
+        functions: [],
+    }],
+}];
 
 // 记录每个菜单出现次数
 let menuCountMap = new Map();

@@ -3,7 +3,7 @@ import {Modal, Button, List} from 'antd';
 
 import Api from '../../api';
 
-export default class UserViewModal extends React.Component {
+export default class extends React.Component {
     // 定义状态属性
     state = {
         record: {}

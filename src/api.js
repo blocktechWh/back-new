@@ -3,7 +3,7 @@ import qs from 'qs'; // qs 用于格式化查询字符串
 import {message} from 'antd';
 
 // 主机地址
-const host = 'http://127.0.0.1:8080';
+const host = 'http://127.0.0.1:8080/mng/';
 
 // 定义通用头信息
 axios.defaults.headers.common['Authorization'] = localStorage.getItem('token') || '';
@@ -36,45 +36,27 @@ axios.interceptors.response.use(function (response) {
 
 // api
 export default {
-	login: (username, password) => axios.post(host + '/mng/login', {name: username, pwd: password}),
-	logout: () => axios.post(host + '/mng/logout'),
+	login: (username, password) => axios.post(`${host}/login`, {name: username, pwd: password}),
+	logout: () => axios.post(`${host}/logout`),
 
 	// menu相关
-	queryMenu: (query) => axios.post(host + '/mng/menu/query', query),
-	getMenu: (menuId) => axios.get(host + '/mng/menu/' + menuId),
-	addMenu: (values) => axios.post(host + '/mng/menu', values),
-	updateMenu: (menuId, values) => axios.put(host + '/mng/menu/' + menuId, values),
-	deleteMenu: (menuId) => axios.delete(host + '/mng/menu/' + menuId),
+	queryMenu: (query) => axios.post(`${host}/menu/query`, query),
+	getMenu: (menuId) => axios.get(`${host}/menu/${menuId}`),
+	getMenuFunc: (menuId) => axios.get(`${host}/menu/${menuId}/func`),
+	syncMenu: (menuList) => axios.post(`${host}/menu/sync`, menuList),
 
 	// user相关
-	queryUser: (query) => axios.post(host + '/mng/user/query', query),
-	getUser: (userId) => axios.get(host + '/mng/user/' + userId),
-	addUser: (values) => axios.post(host + '/mng/user', values),
-	updateUser: (userId, values) => axios.put(host + '/mng/user/' + userId, values),
-	deleteUser: (userId) => axios.delete(host + '/mng/user/' + userId),
+	queryUser: (query) => axios.post(`${host}/user/query`, query),
+	getUser: (userId) => axios.get(`${host}/user/${userId}`),
+	addUser: (values) => axios.post(`${host}/user`, values),
+	updateUser: (userId, values) => axios.put(`${host}/user/${userId}`, values),
+	deleteUser: (userId) => axios.delete(`${host}/user/${userId}`),
 
-	deletesUser: (ids) => axios.get(host + '/mng/user/deletes?ids=' + ids),
-	users: (offset, pageSize, obj) => axios.get(host + '/mng/user/page/' + offset + '/' + pageSize + '?' + qs.stringify(obj)),
-	usersName: (offset, pageSize, orderIdentity, isDesc) => axios.get(host + '/mng/user/page/' + offset + '/' + pageSize, orderIdentity ? {queryOrder: [{orderIdentity, isDesc}]} : {}),
-	fontUsersName: (offset, pageSize, orderIdentity, isDesc) => axios.post(host + '/admin/user/page/' + offset + '/' + pageSize, orderIdentity ? {queryOrder: [{orderIdentity, isDesc}]} : {}),
-	fontUsers: (offset, pageSize, obj) => axios.post(host + '/admin/gift/page/' + offset + '/' + pageSize, obj),
-
-	changePwd: (obj) => axios.get(host + '/mng/user/changePwd?' + qs.stringify(obj)),
-
-	addUsers: (obj) => axios.post(host + '/mng/user/addOrUpdate', obj),
-
-	updateStatus: (obj) => axios.post(host + '/mng/user/updateStatus', obj),
-	getResource: (resoucesId) => axios.get(host + '/mng/resouces/getResourceByPid/' + resoucesId),
-	getAllVotes: (offset, pageSize) => axios.get(host + '/admin/vote/page/' + offset + '/' + pageSize),
-
-	getAllRoles: (offset, pageSize) => axios.get(host + '/mng/role/page/' + offset + '/' + pageSize),
-
-	getAllAccounts: (offset, pageSize, obj) => axios.post(host + '/admin/mebAccount/page/' + offset + '/' + pageSize, obj),
-
-	getWalletLogList: (offset, pageSize, obj) => axios.post(host + '/admin/walletLog/page/' + offset + '/' + pageSize, obj),
-
-	getEntryList: (offset, pageSize, obj) => axios.post(host + '/admin/walletTakeLog/page/' + offset + '/' + pageSize, obj),
-
-	getExistList: (offset, pageSize, obj) => axios.post(host + '/admin/walletTakeLog/page/' + offset + '/' + pageSize, obj),
+	// role相关
+	queryRole: (query) => axios.post(`${host}/role/query`, query),
+	getRole: (roleId) => axios.get(`${host}/role/${roleId}`),
+	addRole: (values) => axios.post(`${host}/role`, values),
+	updateRole: (roleId, values) => axios.put(`${host}/role/${roleId}`, values),
+	deleteRole: (roleId) => axios.delete(`${host}/role/${roleId}`),
 
 }

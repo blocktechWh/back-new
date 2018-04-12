@@ -1,9 +1,9 @@
 import React from 'react';
 import {Table, Button, Popconfirm, message} from 'antd';
 
-import ViewForm from './userView';
-import AddForm from './userAdd';
-import EditForm from './userEdit';
+import AddForm from './roleAdd';
+import EditForm from './roleEdit';
+import ExtendForm from './roleEditModal';
 
 import Api from '../../api';
 import {eventProxy, formatTime, And, Or, Oper, Order} from '../../utils';
@@ -15,16 +15,23 @@ export default class extends React.Component {
 		eventProxy.on('queryEvent', (values) => {
 			console.log("queryEvent");
 			this.queryData = values;
-			this.selectedRowKeys = [];
 			this.doQuery();
 		});
 
 		// 监听刷新事件
 		eventProxy.on('reloadEvent', () => {
 			console.log("reloadEvent");
-			this.selectedRowKeys = [];
 			this.doQuery();
 		});
+
+		// 对象信息
+		this.objId = 'Role'; // 注意首字母大写
+		this.objName = '角色';
+
+		// 关联方法
+		this.queryFunc = Api[`query${this.objId}`];
+		this.deleteFunc = Api[`delete${this.objId}`];
+		this.exportFunc = Api[`export${this.objId}`];
 
 		// 定义内部属性
 		this.queryData = {}; // 查询表单数据
@@ -58,27 +65,28 @@ export default class extends React.Component {
 		},
 
 		// 子组件相关
-		isViewShow: false,
 		isAddShow: false,
 		isEditShow: false,
-		viewKeys: [],
 		editKeys: [],
+
+		// 扩展子组件相关
+		isExtendShow: false,
+		extendKeys: [],
 	}
 
 	// 查询
 	doQuery = () => {
-		console.log("doQuery, queryData=" + JSON.stringify(this.queryData));
-		console.log("doQuery, pagination=" + JSON.stringify(this.state.pagination));
-		console.log("doQuery, filters=" + JSON.stringify(this.filters));
-		console.log("doQuery, sorter=" + JSON.stringify(this.sorter));
+		//	console.log("doQuery, queryData=" + JSON.stringify(this.queryData));
+		//	console.log("doQuery, pagination=" + JSON.stringify(this.state.pagination));
+		//	console.log("doQuery, filters=" + JSON.stringify(this.filters));
+		//	console.log("doQuery, sorter=" + JSON.stringify(this.sorter));
 
 		this.setState({loading: true});
 
 		// 查询条件
-		let and = new And("userName", this.queryData.username, Oper.like);
-		and.add("userState", this.queryData.state);
-		and.add("createTime", this.queryData.regDate[0], Oper.after);
-		and.add("createTime", this.queryData.regDate[1], Oper.before);
+		let and = new And("menuCode", this.queryData.code, Oper.like);
+		and.add("menuName", this.queryData.name, Oper.like);
+
 		// 分页信息
 		let pageSize = this.state.pagination.pageSize || this.state.pagination.defaultPageSize;
 		let current = this.state.pagination.current || 1;
@@ -91,10 +99,10 @@ export default class extends React.Component {
 		if (this.sorter.field) {
 			query.order = new Order(this.sorter.field, this.sorter.order);
 		}
-		console.log("doQuery, query=" + JSON.stringify(query));
+		//	console.log("doQuery, query=" + JSON.stringify(query));
 
 		// 查询
-		Api.queryUser(query).then(res => {
+		this.queryFunc(query).then(res => {
 			if (200 === res.status) {
 				// 设置每一条数据的key
 				// Each record in table should have a unique `key` prop,or set `rowKey` to an unique primary key.
@@ -105,6 +113,7 @@ export default class extends React.Component {
 				let pagination = this.state.pagination;
 				pagination.total = res.data.total;
 				this.setState({
+					selectedRowKeys: [],
 					dataSource: res.data.rows,
 					pagination,
 				});
@@ -130,42 +139,37 @@ export default class extends React.Component {
 
 	// 导出
 	exportExcel = () => {
-		console.log("exportExcel");
+		console.log(this.exportFunc);
 	}
 
 	// 删除
 	doDelete = () => {
 		console.log("doDelete, keys=" + this.state.selectedRowKeys);
 
-		Api.deleteUser(this.state.selectedRowKeys[0]).then(res => {
-			eventProxy.trigger('reloadEvent');
-			message.info("删除用户成功");
+		this.deleteFunc(this.state.selectedRowKeys[0]).then(res => {
+			if (200 === res.status) {
+				eventProxy.trigger('reloadEvent');
+				message.info(`删除${this.objName}成功`);
+			} else {
+				message.error(res.msg);
+			}
 		});
 	}
 
-	// ------扩展按钮：切换用户状态------
-	switchState = (userId) => {
-		console.log("switchState, userId=" + userId);
+	// 分配权限
+	assignFunc = (roleId) => {
+		console.log(roleId);
+		this.setState({isExtendShow: true});
 	}
-
-	// ------扩展按钮：分配角色------
-	assignRole = (userId) => {
-		console.log("assignRole, userId=" + userId);
-	}
-
-	// ------子组件：查看------
-	linkViewForm = (obj) => this.viewForm = obj;
-	showViewForm = () => {this.setState({viewKeys: this.state.selectedRowKeys, isViewShow: true});}
-	closeViewForm = () => {this.setState({viewKeys: [], isViewShow: false});}
 
 	// ------子组件：新增------
 	linkAddForm = (obj) => this.addForm = obj;
-	showAddForm = () => {this.setState({isAddShow: true});}
+	showAddForm = () => {this.addForm.resetFields(); this.setState({isAddShow: true});}
 	closeAddForm = () => {this.setState({isAddShow: false});}
 
 	// ------子组件：编辑------
 	linkEditForm = (obj) => this.editForm = obj;
-	showEditForm = () => {this.setState({editKeys: this.state.selectedRowKeys, isEditShow: true});}
+	showEditForm = () => {this.editForm.resetFields(); this.setState({editKeys: this.state.selectedRowKeys, isEditShow: true});}
 	closeEditForm = () => {this.setState({editKeys: [], isEditShow: false});}
 
 	// render
@@ -173,44 +177,24 @@ export default class extends React.Component {
 		const columns = [{
 			title: '编号',
 			dataIndex: 'id',
-			render: text => <a><span style={{marginRight: 25}}>{text}</span></a>,
+			align: 'center',
 			sorter: true,
 			width: 80
 		}, {
-			title: '用户名',
-			dataIndex: 'userName',
+			title: '角色名称',
+			dataIndex: 'roleName',
 			sorter: true,
 			width: 200
 		}, {
-			title: '姓名',
-			dataIndex: 'userRealname',
-			sorter: true,
+			title: '角色描述',
+			dataIndex: 'roleDesc',
 			width: 320
 		}, {
-			title: '注册时间',
-			dataIndex: 'createTime',
-			render: text => formatTime(new Date(text)),
-			sorter: true,
-			width: 400
-		}, {
-			title: '状态',
-			dataIndex: 'userState',
-			sorter: true,
-			width: 200,
-			filters: [{ // 筛选项
-				text: '启用',
-				value: 'valid',
-			}, {
-				text: '禁用',
-				value: 'invalid',
-			}],
-			filterMultiple: false // 是否可多选
-		}, {
-			title: '分配角色',
+			title: '分配权限',
 			key: 'oper',
 			width: 300,
 			render: record => {
-				return <div> <Button type="primary" onClick={() => {this.assignRole(record.key)}}>分配</Button> </div>
+				return <div> <Button type="primary" onClick={() => {this.assignFunc(record.key)}}>分配</Button> </div>
 			}
 		}];
 
@@ -226,35 +210,31 @@ export default class extends React.Component {
 		// 是否选中记录
 		const hasSelected = selectedRowKeys.length > 0;
 
-		// 表头功能栏
-		const header = () => {
-			return (
-				<div>
-					<Button type="primary" icon="file-excel" onClick={this.exportExcel}>导出</Button>
-					<Button type="primary" style={{marginLeft: 8}} icon="bars" onClick={this.showViewForm} disabled={!hasSelected}>查看</Button>
-					<Button type="primary" style={{marginLeft: 8}} icon="plus" onClick={this.showAddForm}>新增</Button>
-					<Button type="primary" style={{marginLeft: 8}} icon="edit" onClick={this.showEditForm} disabled={!hasSelected}>编辑</Button>
-					<Popconfirm placement="topRight" title="确认要删除吗？" onConfirm={this.doDelete} okText="确认" cancelText="取消">
-						<Button type="primary" style={{marginLeft: 8}} icon="delete" disabled={!hasSelected}>删除</Button>
-					</Popconfirm>
-					<Button type="primary" style={{marginLeft: 8}} icon="lock" onClick={this.exportExcel} disabled={!hasSelected}>停用</Button>
-					<span style={{marginLeft: 8}}>
-						{hasSelected ? `已选中 ${selectedRowKeys.length} 条记录` : ''}
-					</span>
-				</div>
-			)
-		}
-
 		return (
 			<div>
-				{/* 查看、新增、编辑 */}
-				<ViewForm ref={this.linkViewForm} visible={this.state.isViewShow} onClose={this.closeViewForm} dataKeys={this.state.viewKeys} />
+				{/* 新增、编辑 */}
 				<AddForm ref={this.linkAddForm} visible={this.state.isAddShow} onClose={this.closeAddForm} />
 				<EditForm ref={this.linkEditForm} visible={this.state.isEditShow} onClose={this.closeEditForm} dataKeys={this.state.editKeys} />
 
+				{/* 分配权限 */}
+				<ExtendForm visible={this.state.isExtendShow} />
+
 				{/* 数据列表 */}
-				<Table title={header} rowSelection={rowSelection} columns={columns} dataSource={this.state.dataSource} bordered={true}
-					loading={this.state.loading} pagination={this.state.pagination} onChange={this.doTableChange} />
+				<div>
+					<div style={{marginLeft: 8, marginTop: 20, marginBottom: 8}}>
+						<Button type="primary" icon="file-excel" onClick={this.exportExcel}>导出</Button>
+						<Button type="primary" style={{marginLeft: 8}} icon="plus" onClick={this.showAddForm}>新增</Button>
+						<Button type="primary" style={{marginLeft: 8}} icon="edit" onClick={this.showEditForm} disabled={!hasSelected}>编辑</Button>
+						<Popconfirm placement="topRight" title="确认要删除吗？" onConfirm={this.doDelete} okText="确认" cancelText="取消">
+							<Button type="primary" style={{marginLeft: 8}} icon="delete" disabled={!hasSelected}>删除</Button>
+						</Popconfirm>
+						<span style={{marginLeft: 8}}>
+							{hasSelected ? `已选中 ${selectedRowKeys.length} 条记录` : ''}
+						</span>
+					</div>
+					<Table rowSelection={rowSelection} columns={columns} dataSource={this.state.dataSource} bordered={true}
+						loading={this.state.loading} pagination={this.state.pagination} onChange={this.doTableChange} />
+				</div>
 			</div >
 		)
 	}

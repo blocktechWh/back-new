@@ -67,7 +67,7 @@ export default class extends React.Component {
             let functions = []; // 定义的功能和用户后台功能的并集
             if (this.routeFuncMap.get(child.props.route.path)) {
                 for (let func of this.routeFuncMap.get(child.props.route.path)) {
-                    if (this.functionCodes && this.functionCodes.includes(func)) {
+                    if (this.functionCodes && this.functionCodes.includes(func.name)) {
                         functions.push(func);
                     }
                 }

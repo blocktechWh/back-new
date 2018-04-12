@@ -18,7 +18,7 @@ class RegistrationForm extends React.Component {
 
 
   componentWillReceiveProps(nextProps) {
-    this.fetchData(nextProps);
+ //   this.fetchData(nextProps);
   }
 
   fetchData(nextProps) {

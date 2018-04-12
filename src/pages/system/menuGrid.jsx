@@ -1,11 +1,9 @@
 import React from 'react';
-import {Table, Button, Popconfirm, message} from 'antd';
-
-import AddForm from './menuAdd';
-import EditForm from './menuEdit';
+import {Table, Button, message} from 'antd';
 
 import Api from '../../api';
 import {eventProxy, formatTime, And, Or, Oper, Order} from '../../utils';
+import {menuList} from '../../menuFunc';
 
 export default class extends React.Component {
 	// 页面即将加载
@@ -54,7 +52,6 @@ export default class extends React.Component {
 	state = {
 		loading: false, // 是否加载中
 		dataSource: [], // 列表数据源
-		selectedRowKeys: [],// 已选中记录
 		pagination: { // 分页信息
 			defaultPageSize: 20,
 			total: 0,
@@ -63,10 +60,9 @@ export default class extends React.Component {
 			showTotal: total => `共 ${total} 条`,
 		},
 
-		// 子组件相关
-		isAddShow: false,
-		isEditShow: false,
-		editKeys: [],
+		// 子列表相关
+		expandedRowKey: '', // 子列表展开对象，必须限制每次只能展开一个
+		subDataSource: [], // 列表数据源
 	}
 
 	// 查询
@@ -108,7 +104,6 @@ export default class extends React.Component {
 				let pagination = this.state.pagination;
 				pagination.total = res.data.total;
 				this.setState({
-					selectedRowKeys: [],
 					dataSource: res.data.rows,
 					pagination,
 				});
@@ -132,44 +127,72 @@ export default class extends React.Component {
 		eventProxy.trigger('reloadEvent');
 	}
 
-	// 导出
-	exportExcel = () => {
-		console.log(this.exportFunc);
-	}
-
-	// 删除
-	doDelete = () => {
-		console.log("doDelete, keys=" + this.state.selectedRowKeys);
-
-		this.deleteFunc(this.state.selectedRowKeys[0]).then(res => {
+	// 同步
+	doSync = () => {
+		Api.syncMenu(menuList).then(res => {
 			if (200 === res.status) {
-				eventProxy.trigger('reloadEvent');
-				message.info(`删除${this.objName}成功`);
+				message.info('同步完成');
+				this.doQuery();
 			} else {
 				message.error(res.msg);
 			}
 		});
 	}
 
-	// ------子组件：新增------
-	linkAddForm = (obj) => this.addForm = obj;
-	showAddForm = () => {this.addForm.resetFields(); this.setState({isAddShow: true});}
-	closeAddForm = () => {this.setState({isAddShow: false});}
+	// 子列表展开
+	doTableExpand = (expanded, record) => {
+		if (expanded) { // 展开
+			Api.getMenuFunc(record.key).then(res => {
+				if (200 === res.status) {
+					res.data.map((item, index) => {
+						return item.key = item.id;
+					});
 
-	// ------子组件：编辑------
-	linkEditForm = (obj) => this.editForm = obj;
-	showEditForm = () => {this.editForm.resetFields(); this.setState({editKeys: this.state.selectedRowKeys, isEditShow: true});}
-	closeEditForm = () => {this.setState({editKeys: [], isEditShow: false});}
+					this.setState({
+						expandedRowKey: record.key,
+						subDataSource: res.data,
+					});
+				} else {
+					message.error(res.msg);
+				}
+			});
+		} else { // 关闭
+			this.setState({
+				expandedRowKey: '',
+				subDataSource: [],
+			});
+		}
+	}
 
 	// render
 	render() {
+		// 菜单功能子表格
+		const menuFuncRender = () => {
+			const columns = [{
+				title: '功能编号',
+				dataIndex: 'funcCode',
+			}, {
+				title: '功能名称',
+				dataIndex: 'requestName',
+			}, {
+				title: '请求方法',
+				dataIndex: 'requestMethod',
+			}, {
+				title: '请求路径',
+				dataIndex: 'requestPattern',
+			}];
+
+			// 表头功能栏
+			const header = () => {
+				return '功能列表';
+			}
+
+			return (
+				<Table title={header} size='small' columns={columns} dataSource={this.state.subDataSource} pagination={false} bordered={true} />
+			);
+		};
+
 		const columns = [{
-			title: '编号',
-			dataIndex: 'id',
-			align: 'center',
-			sorter: true,
-			width: 80
-		}, {
 			title: '菜单编号',
 			dataIndex: 'menuCode',
 			sorter: true,
@@ -181,41 +204,20 @@ export default class extends React.Component {
 			width: 320
 		}];
 
-		// 选中记录变化
-		const {selectedRowKeys} = this.state;
-		const rowSelection = {
-			selectedRowKeys,
-			onChange: (selectedRowKeys) => {
-				console.log('selectedRowKeys changed:', selectedRowKeys);
-				this.setState({selectedRowKeys});
-			}
-		};
-		// 是否选中记录
-		const hasSelected = selectedRowKeys.length > 0;
+
+		// 表头功能栏
+		const header = () => {
+			return (
+				<Button type="primary" icon="sync" onClick={this.doSync}>同步</Button>
+			)
+		}
 
 		return (
-			<div>
-				{/* 新增、编辑 */}
-				<AddForm ref={this.linkAddForm} visible={this.state.isAddShow} onClose={this.closeAddForm} />
-				<EditForm ref={this.linkEditForm} visible={this.state.isEditShow} onClose={this.closeEditForm} dataKeys={this.state.editKeys} />
-
-				{/* 数据列表 */}
-				<div>
-					<div style={{marginLeft: 8, marginTop: 20, marginBottom: 8}}>
-						<Button type="primary" icon="file-excel" onClick={this.exportExcel}>导出</Button>
-						<Button type="primary" style={{marginLeft: 8}} icon="plus" onClick={this.showAddForm}>新增</Button>
-						<Button type="primary" style={{marginLeft: 8}} icon="edit" onClick={this.showEditForm} disabled={!hasSelected}>编辑</Button>
-						<Popconfirm placement="topRight" title="确认要删除吗？" onConfirm={this.doDelete} okText="确认" cancelText="取消">
-							<Button type="primary" style={{marginLeft: 8}} icon="delete" disabled={!hasSelected}>删除</Button>
-						</Popconfirm>
-						<span style={{marginLeft: 8}}>
-							{hasSelected ? `已选中 ${selectedRowKeys.length} 条记录` : ''}
-						</span>
-					</div>
-					<Table rowSelection={rowSelection} columns={columns} dataSource={this.state.dataSource} bordered={true}
-						loading={this.state.loading} pagination={this.state.pagination} onChange={this.doTableChange} />
-				</div>
-			</div >
+			<Table title={header} columns={columns} dataSource={this.state.dataSource}
+				bordered={true} loading={this.state.loading}
+				pagination={this.state.pagination} onChange={this.doTableChange}
+				expandedRowRender={menuFuncRender} expandRowByClick={false}
+				onExpand={this.doTableExpand} expandedRowKeys={[this.state.expandedRowKey]} />
 		)
 	}
 }

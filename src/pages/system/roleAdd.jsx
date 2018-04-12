@@ -9,17 +9,17 @@ class AddForm extends React.Component {
     // 页面即将加载
     componentWillMount() {
         // 对象信息
-        this.objId = 'Menu'; // 注意首字母大写
-        this.objName = '菜单';
+        this.objId = 'Role'; // 注意首字母大写
+        this.objName = '角色';
 
         // 在此定义域的配置信息
         this.fieldsConfig = [{
-            id: 'code',
-            name: '菜单编号',
+            id: 'name',
+            name: '角色名称',
             required: true,
         }, {
-            id: 'name',
-            name: '菜单名称',
+            id: 'desc',
+            name: '角色描述',
             required: true,
         }];
 

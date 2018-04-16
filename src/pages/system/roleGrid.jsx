@@ -3,7 +3,7 @@ import {Table, Button, Popconfirm, message} from 'antd';
 
 import AddForm from './roleAdd';
 import EditForm from './roleEdit';
-import ExtendForm from './roleEditModal';
+import ExtendForm from './roleLinkMenu';
 
 import Api from '../../api';
 import {eventProxy, formatTime, And, Or, Oper, Order} from '../../utils';
@@ -71,7 +71,7 @@ export default class extends React.Component {
 
 		// 扩展子组件相关
 		isExtendShow: false,
-		extendKeys: [],
+		extendKey: '',
 	}
 
 	// 查询
@@ -156,21 +156,20 @@ export default class extends React.Component {
 		});
 	}
 
-	// 分配权限
-	assignFunc = (roleId) => {
-		console.log(roleId);
-		this.setState({isExtendShow: true});
-	}
-
 	// ------子组件：新增------
 	linkAddForm = (obj) => this.addForm = obj;
 	showAddForm = () => {this.addForm.resetFields(); this.setState({isAddShow: true});}
-	closeAddForm = () => {this.setState({isAddShow: false});}
+	closeAddForm = () => this.setState({isAddShow: false});
 
 	// ------子组件：编辑------
 	linkEditForm = (obj) => this.editForm = obj;
 	showEditForm = () => {this.editForm.resetFields(); this.setState({editKeys: this.state.selectedRowKeys, isEditShow: true});}
-	closeEditForm = () => {this.setState({editKeys: [], isEditShow: false});}
+	closeEditForm = () => this.setState({editKeys: [], isEditShow: false});
+
+	// ------扩展子组件：分配权限------
+	linkExtendForm = (obj) => this.extendForm = obj;
+	showExtendForm = (roleId) => this.setState({extendKey: roleId, isExtendShow: true});
+	closeExtendForm = () => this.setState({extendKey: '', isExtendShow: false});
 
 	// render
 	render() {
@@ -194,7 +193,7 @@ export default class extends React.Component {
 			key: 'oper',
 			width: 300,
 			render: record => {
-				return <div> <Button type="primary" onClick={() => {this.assignFunc(record.key)}}>分配</Button> </div>
+				return <div> <Button type="primary" onClick={() => {this.showExtendForm(record.key)}}>分配</Button> </div>
 			}
 		}];
 
@@ -217,7 +216,7 @@ export default class extends React.Component {
 				<EditForm ref={this.linkEditForm} visible={this.state.isEditShow} onClose={this.closeEditForm} dataKeys={this.state.editKeys} />
 
 				{/* 分配权限 */}
-				<ExtendForm visible={this.state.isExtendShow} />
+				<ExtendForm ref={this.linkExtendForm} visible={this.state.isExtendShow} onClose={this.closeExtendForm} dataKeys={this.state.extendKey} />
 
 				{/* 数据列表 */}
 				<div>

@@ -42,6 +42,7 @@ export default {
 	// menu相关
 	queryMenu: (query) => axios.post(`${host}/menu/query`, query),
 	getMenu: (menuId) => axios.get(`${host}/menu/${menuId}`),
+	getAllFunc: () => axios.get(`${host}/menu/all/func`),
 	getMenuFunc: (menuId) => axios.get(`${host}/menu/${menuId}/func`),
 	syncMenu: (menuList) => axios.post(`${host}/menu/sync`, menuList),
 
@@ -58,5 +59,6 @@ export default {
 	addRole: (values) => axios.post(`${host}/role`, values),
 	updateRole: (roleId, values) => axios.put(`${host}/role/${roleId}`, values),
 	deleteRole: (roleId) => axios.delete(`${host}/role/${roleId}`),
-
+	getRoleFunc: (roleId) => axios.get(`${host}/role/${roleId}/func`),
+	updateRoleFunc: (roleId, values) => axios.post(`${host}/role/${roleId}/func`, values),
 }

@@ -24,24 +24,24 @@ import Menu from './pages/system/menu';
 import Member from './pages/busi/member';
 
 const RouteConfig =
-    <Router history={hashHistory}>
-        <Route path="/" component={Frame}>
-            <IndexRoute component={Login} />
-            <Route path="/login" component={Login}></Route>
-            <Route path="/404" component={NotFound}></Route>
-            <Route path="/nav" component={Nav}>
-                <Route path="/nav/home" component={Home}></Route>
-                /** 开发者模式 */
-                /** 系统管理 */
-                <Route path="/nav/system/user" component={User}></Route>
-                <Route path="/nav/system/role" component={Role}></Route>
-                <Route path="/nav/system/menu" component={Menu}></Route>
-                /** 业务管理 */
-                <Route path="/nav/busi/member" component={Member}></Route>
-            </Route>
-        </Route>
-    </Router>;
+	<Router history={hashHistory}>
+		<Route path="/" component={Frame}>
+			<IndexRoute component={Login} />
+			<Route path="/login" component={Login}></Route>
+			<Route path="/404" component={NotFound}></Route>
+			<Route path="/nav" component={Nav}>
+				<Route path="/nav/home" component={Home}></Route>
+				/** 开发者模式 */
+				/** 系统管理 */
+				<Route path="/nav/system/user" component={User}></Route>
+				<Route path="/nav/system/role" component={Role}></Route>
+				<Route path="/nav/system/menu" component={Menu}></Route>
+				/** 业务管理 */
+				<Route path="/nav/busi/member" component={Member}></Route>
+			</Route>
+		</Route>
+	</Router>;
 ReactDOM.render(
-    RouteConfig,
-    document.getElementById('root')
+	RouteConfig,
+	document.getElementById('root')
 );

@@ -43,7 +43,7 @@ class QueryForm extends React.Component {
 		}
 		const rangeConfig = {
 			rules: [{type: 'array', required: false, message: 'Please select time!'}],
-			initialValue: [moment().subtract('d', 7), moment()]
+			initialValue: [moment().subtract('M', 1), moment()]
 		};
 
 		// 单个Col的列宽设定（24 栅格）

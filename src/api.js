@@ -53,12 +53,17 @@ export default {
 	updateUser: (userId, values) => axios.put(`${host}/user/${userId}`, values),
 	deleteUser: (userId) => axios.delete(`${host}/user/${userId}`),
 
+	getSelfRole: () => axios.get(`${host}/user/self/role`),
+	getUserRole: (userId) => axios.get(`${host}/user/${userId}/role`),
+	updateUserRole: (userId, values) => axios.post(`${host}/user/${userId}/role`, values),
+
 	// role相关
 	queryRole: (query) => axios.post(`${host}/role/query`, query),
 	getRole: (roleId) => axios.get(`${host}/role/${roleId}`),
 	addRole: (values) => axios.post(`${host}/role`, values),
 	updateRole: (roleId, values) => axios.put(`${host}/role/${roleId}`, values),
 	deleteRole: (roleId) => axios.delete(`${host}/role/${roleId}`),
+
 	getRoleFunc: (roleId) => axios.get(`${host}/role/${roleId}/func`),
 	updateRoleFunc: (roleId, values) => axios.post(`${host}/role/${roleId}/func`, values),
 }

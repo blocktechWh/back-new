@@ -4,6 +4,7 @@ import {Table, Button, Popconfirm, message} from 'antd';
 import ViewForm from './userView';
 import AddForm from './userAdd';
 import EditForm from './userEdit';
+import ExtendForm from './userLinkRole';
 
 import Api from '../../api';
 import {eventProxy, formatTime, And, Or, Oper, Order} from '../../utils';
@@ -63,6 +64,10 @@ export default class extends React.Component {
 		isEditShow: false,
 		viewKeys: [],
 		editKeys: [],
+
+		// 扩展子组件相关
+		isExtendShow: false,
+		extendKey: '',
 	}
 
 	// 查询
@@ -96,12 +101,6 @@ export default class extends React.Component {
 		// 查询
 		Api.queryUser(query).then(res => {
 			if (200 === res.status) {
-				// 设置每一条数据的key
-				// Each record in table should have a unique `key` prop,or set `rowKey` to an unique primary key.
-				res.data.rows.map((item, index) => {
-					return item.key = item.id;
-				});
-
 				let pagination = this.state.pagination;
 				pagination.total = res.data.total;
 				this.setState({
@@ -168,6 +167,11 @@ export default class extends React.Component {
 	showEditForm = () => {this.setState({editKeys: this.state.selectedRowKeys, isEditShow: true});}
 	closeEditForm = () => {this.setState({editKeys: [], isEditShow: false});}
 
+	// ------扩展子组件：分配角色------
+	linkExtendForm = (obj) => this.extendForm = obj;
+	showExtendForm = (userId) => this.setState({extendKey: userId, isExtendShow: true});
+	closeExtendForm = () => this.setState({extendKey: '', isExtendShow: false});
+
 	// render
 	render() {
 		const columns = [{
@@ -210,7 +214,7 @@ export default class extends React.Component {
 			key: 'oper',
 			width: 300,
 			render: record => {
-				return <div> <Button type="primary" onClick={() => {this.assignRole(record.key)}}>分配</Button> </div>
+				return <div> <Button type="primary" onClick={() => {this.showExtendForm(record.id)}}>分配</Button> </div>
 			}
 		}];
 
@@ -252,9 +256,12 @@ export default class extends React.Component {
 				<AddForm ref={this.linkAddForm} visible={this.state.isAddShow} onClose={this.closeAddForm} />
 				<EditForm ref={this.linkEditForm} visible={this.state.isEditShow} onClose={this.closeEditForm} dataKeys={this.state.editKeys} />
 
+				{/* 分配角色 */}
+				<ExtendForm ref={this.linkExtendForm} visible={this.state.isExtendShow} onClose={this.closeExtendForm} dataKeys={this.state.extendKey} />
+
 				{/* 数据列表 */}
-				<Table title={header} rowSelection={rowSelection} columns={columns} dataSource={this.state.dataSource} bordered={true}
-					loading={this.state.loading} pagination={this.state.pagination} onChange={this.doTableChange} />
+				<Table title={header} rowSelection={rowSelection} columns={columns} dataSource={this.state.dataSource} rowKey={record => record.id}
+					bordered={true} loading={this.state.loading} pagination={this.state.pagination} onChange={this.doTableChange} />
 			</div >
 		)
 	}

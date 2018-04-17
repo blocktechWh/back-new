@@ -59,66 +59,78 @@ export const formatTime = date => {
 	return [year, month, day].map(padStr).join('-') + ' ' + [hour, minute, second].map(padStr).join(':')
 }
 
-// 条件比较符
-export const Oper = {
-	like: 'OPER_LIKE',
-	leftLike: 'OPER_LIKE_LEFT',
-	rightLike: 'OPER_LIKE_RIGHT',
-	notLike: 'OPER_NOT_LIKE',
-
-	equal: 'OPER_EQUAL',
-	big: 'OPER_BIG',
-	small: 'OPER_SMALL',
-	bigEqual: 'OPER_BIG_EQUAL',
-	smallEqual: 'OPER_SMALL_EQUAL',
-	noEqual: 'OPER_NO_EQUAL',
-
-	after: 'OPER_BIG_EQUAL_DATE',
-	before: 'OPER_SMALL_EQUAL_DATE',
-
-	in: 'OPER_IN',
-	notIn: 'OPER_NOT_IN',
-}
-
 // 查询条件
-class Condition {
-	constructor(field, value = '', oper = Oper.equal) {
-		this.field = field;
-		this.value = value;
-		this.oper = oper;
-	}
-};
-export class And {
-	constructor(...args) {
-		this.combo = 'and';
-		this.conditions = [];
-		this.conditions.push(new Condition(...args));
-	}
+export const Query = {
+	// 比较符
+	Oper: {
+		like: 'OPER_LIKE',
+		leftLike: 'OPER_LIKE_LEFT',
+		rightLike: 'OPER_LIKE_RIGHT',
+		notLike: 'OPER_NOT_LIKE',
 
-	add(...args) {
-		if (args.length === 1) {
-			this.conditions.push(args);
-		} else {
-			this.conditions.push(new Condition(...args));
+		equal: 'OPER_EQUAL',
+		big: 'OPER_BIG',
+		small: 'OPER_SMALL',
+		bigEqual: 'OPER_BIG_EQUAL',
+		smallEqual: 'OPER_SMALL_EQUAL',
+		noEqual: 'OPER_NO_EQUAL',
+
+		after: 'OPER_BIG_EQUAL_DATE',
+		before: 'OPER_SMALL_EQUAL_DATE',
+
+		in: 'OPER_IN',
+		notIn: 'OPER_NOT_IN',
+	},
+
+	// 查询条件
+	Condition: class {
+		constructor(field, value = '', oper = Query.Oper.equal) {
+			this.field = field;
+			this.value = value;
+			this.oper = oper;
 		}
-	}
-}
-export class Or extends And {
-	constructor(...args) {
-		super(...args);
-		this.combo = 'or';
-	}
-}
-export class Order {
-	constructor(field, value) {
-		if (value === 'ascend') {
-			value = 'asc';
-		} else if (value === 'descend') {
-			value = 'desc';
+	},
+	And: class {
+		constructor(...args) {
+			this.combo = 'and';
+			this.conditions = [];
+			this.conditions.push(new Query.Condition(...args));
 		}
 
-		this.combo = 'order';
-		this.conditions = [];
-		this.conditions.push(new Condition(field, value));
+		add(...args) {
+			if (args.length === 1) {
+				this.conditions.push(args);
+			} else {
+				this.conditions.push(new Query.Condition(...args));
+			}
+		}
+	},
+	Or: class {
+		constructor(...args) {
+			this.combo = 'or';
+			this.conditions = [];
+			this.conditions.push(new Query.Condition(...args));
+		}
+
+		add(...args) {
+			if (args.length === 1) {
+				this.conditions.push(args);
+			} else {
+				this.conditions.push(new Query.Condition(...args));
+			}
+		}
+	},
+	Order: class {
+		constructor(field, value) {
+			if (value === 'ascend') {
+				value = 'asc';
+			} else if (value === 'descend') {
+				value = 'desc';
+			}
+
+			this.combo = 'order';
+			this.conditions = [];
+			this.conditions.push(new Query.Condition(field, value));
+		}
 	}
 }

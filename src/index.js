@@ -7,7 +7,6 @@ import './index.less';
 import Frame from './pages/frame';
 import Nav from './pages/nav';
 import Login from './pages/login';
-import Welcome from './pages/login';
 import NotFound from './pages/notFound';
 
 // 首页
@@ -21,7 +20,6 @@ import Role from './pages/system/role';
 import Menu from './pages/system/menu';
 
 // 业务管理：会员
-import Member from './pages/busi/member';
 
 const RouteConfig =
 	<Router history={hashHistory}>
@@ -36,8 +34,7 @@ const RouteConfig =
 				<Route path="/nav/system/user" component={User}></Route>
 				<Route path="/nav/system/role" component={Role}></Route>
 				<Route path="/nav/system/menu" component={Menu}></Route>
-				/** 业务管理 */
-				<Route path="/nav/busi/member" component={Member}></Route>
+			/** 业务管理 */
 			</Route>
 		</Route>
 	</Router>;

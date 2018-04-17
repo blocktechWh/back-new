@@ -1,5 +1,5 @@
 import React from 'react';
-import {Layout, Menu, Icon, Popconfirm, Button, message} from 'antd';
+import {Icon} from 'antd';
 
 export default class Homepage extends React.Component {
 	// 页面即将加载

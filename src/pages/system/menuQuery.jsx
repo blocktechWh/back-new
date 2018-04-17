@@ -1,8 +1,6 @@
 import React from 'react';
-import {Form, Button, Select, Input, DatePicker, Row, Col} from 'antd';
-import moment from 'moment';
+import {Form, Button, Input, Row, Col} from 'antd';
 const FormItem = Form.Item;
-const RangePicker = DatePicker.RangePicker;
 import {eventProxy} from '../../utils';
 
 class QueryForm extends React.Component {

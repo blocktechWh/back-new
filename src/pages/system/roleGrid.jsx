@@ -6,7 +6,7 @@ import EditForm from './roleEdit';
 import ExtendForm from './roleLinkMenu';
 
 import Api from '../../api';
-import {eventProxy, formatTime, And, Or, Oper, Order} from '../../utils';
+import {eventProxy, Query} from '../../utils';
 
 export default class extends React.Component {
 	// 页面即将加载
@@ -84,8 +84,8 @@ export default class extends React.Component {
 		this.setState({loading: true});
 
 		// 查询条件
-		let and = new And("menuCode", this.queryData.code, Oper.like);
-		and.add("menuName", this.queryData.name, Oper.like);
+		let and = new Query.And("menuCode", this.queryData.code, Query.Oper.like);
+		and.add("menuName", this.queryData.name, Query.Oper.like);
 
 		// 分页信息
 		let pageSize = this.state.pagination.pageSize || this.state.pagination.defaultPageSize;
@@ -97,7 +97,7 @@ export default class extends React.Component {
 		}
 		// 排序条件
 		if (this.sorter.field) {
-			query.order = new Order(this.sorter.field, this.sorter.order);
+			query.order = new Query.Order(this.sorter.field, this.sorter.order);
 		}
 		//	console.log("doQuery, query=" + JSON.stringify(query));
 

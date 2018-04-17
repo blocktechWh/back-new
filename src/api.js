@@ -1,5 +1,4 @@
 import axios from 'axios'; // Axios 是一个基于 promise 的 HTTP 库
-import qs from 'qs'; // qs 用于格式化查询字符串
 import {message} from 'antd';
 
 // 主机地址

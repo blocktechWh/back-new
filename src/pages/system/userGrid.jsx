@@ -7,7 +7,7 @@ import EditForm from './userEdit';
 import ExtendForm from './userLinkRole';
 
 import Api from '../../api';
-import {eventProxy, formatTime, And, Or, Oper, Order} from '../../utils';
+import {eventProxy, formatTime, Query} from '../../utils';
 
 export default class extends React.Component {
 	// 页面即将加载
@@ -80,10 +80,10 @@ export default class extends React.Component {
 		this.setState({loading: true});
 
 		// 查询条件
-		let and = new And("userName", this.queryData.username, Oper.like);
+		let and = new Query.And("userName", this.queryData.username, Query.Oper.like);
 		and.add("userState", this.queryData.state);
-		and.add("createTime", this.queryData.regDate[0], Oper.after);
-		and.add("createTime", this.queryData.regDate[1], Oper.before);
+		and.add("createTime", this.queryData.regDate[0], Query.Oper.after);
+		and.add("createTime", this.queryData.regDate[1], Query.Oper.before);
 		// 分页信息
 		let pageSize = this.state.pagination.pageSize || this.state.pagination.defaultPageSize;
 		let current = this.state.pagination.current || 1;
@@ -94,7 +94,7 @@ export default class extends React.Component {
 		}
 		// 排序条件
 		if (this.sorter.field) {
-			query.order = new Order(this.sorter.field, this.sorter.order);
+			query.order = new Query.Order(this.sorter.field, this.sorter.order);
 		}
 		console.log("doQuery, query=" + JSON.stringify(query));
 

@@ -8,39 +8,39 @@ export const fullMenu = [{
 	route: '/nav/home',
 	isForceShow: true, // 必须菜单，强制显示
 }, {
-	key: 'menu01',
+	key: 'devMode',
 	title: '开发者模式',
 	icon: 'tool',
-	subMenus: [],
-}, {
-	key: 'menu02',
-	title: '系统管理',
-	icon: 'setting',
 	subMenus: [{
-		key: 'menu02.sub01',
-		title: '用户管理',
-		icon: 'user',
-		route: '/nav/system/user',
-		functions: [Api.getUser, Api.queryUser, Api.addUser, Api.updateUser, Api.deleteUser],
-	}, {
-		key: 'menu02.sub02',
-		title: '角色管理',
-		icon: '',
-		route: '/nav/system/role',
-		functions: [Api.getRole, Api.queryRole, Api.addRole, Api.updateRole, Api.deleteRole],
-	}, {
-		key: 'menu02.sub03',
+		key: 'menuMng',
 		title: '菜单管理',
 		icon: '',
 		route: '/nav/system/menu',
-		functions: [Api.queryMenu],
+		functions: [Api.queryMenu, Api.getMenuFunc, Api.syncMenu],
 	}],
 }, {
-	key: 'menu03',
+	key: 'sysMng',
+	title: '系统管理',
+	icon: 'setting',
+	subMenus: [{
+		key: 'userMng',
+		title: '用户管理',
+		icon: 'user',
+		route: '/nav/system/user',
+		functions: [Api.getUser, Api.queryUser, Api.addUser, Api.updateUser, Api.deleteUser, Api.getSelfRole, Api.getUserRole, Api.updateUserRole],
+	}, {
+		key: 'roleMng',
+		title: '角色管理',
+		icon: 'solution',
+		route: '/nav/system/role',
+		functions: [Api.getRole, Api.queryRole, Api.addRole, Api.updateRole, Api.deleteRole, Api.getAllFunc, Api.getRoleFunc, Api.updateRoleFunc],
+	}],
+}, {
+	key: 'busiMng',
 	title: '业务管理',
 	icon: 'setting',
 	subMenus: [{
-		key: 'menu03.sub01',
+		key: 'busiMng.sub01',
 		title: '设备管理',
 		icon: '',
 		route: '/nav/system/user',

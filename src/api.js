@@ -39,31 +39,31 @@ export default {
 	login: (username, password) => axios.post(`${host}/login`, {name: username, pwd: password}),
 	logout: () => axios.post(`${host}/logout`),
 
-	// menu相关
+	// 菜单管理
 	queryMenu: (query) => axios.post(`${host}/menu/query`, query),
-	getMenu: (menuId) => axios.get(`${host}/menu/${menuId}`),
-	getAllFunc: () => axios.get(`${host}/menu/all/func`),
 	getMenuFunc: (menuId) => axios.get(`${host}/menu/${menuId}/func`),
 	syncMenu: (menuList) => axios.post(`${host}/menu/sync`, menuList),
 
-	// user相关
+	// 用户管理
 	queryUser: (query) => axios.post(`${host}/user/query`, query),
 	getUser: (userId) => axios.get(`${host}/user/${userId}`),
 	addUser: (values) => axios.post(`${host}/user`, values),
 	updateUser: (userId, values) => axios.put(`${host}/user/${userId}`, values),
 	deleteUser: (userId) => axios.delete(`${host}/user/${userId}`),
-
+	// 用户分配角色
 	getSelfRole: () => axios.get(`${host}/user/self/role`),
 	getUserRole: (userId) => axios.get(`${host}/user/${userId}/role`),
 	updateUserRole: (userId, values) => axios.post(`${host}/user/${userId}/role`, values),
 
-	// role相关
+	// 角色
 	queryRole: (query) => axios.post(`${host}/role/query`, query),
 	getRole: (roleId) => axios.get(`${host}/role/${roleId}`),
 	addRole: (values) => axios.post(`${host}/role`, values),
 	updateRole: (roleId, values) => axios.put(`${host}/role/${roleId}`, values),
 	deleteRole: (roleId) => axios.delete(`${host}/role/${roleId}`),
-
+	// 角色分配权限
+	getAllFunc: () => axios.get(`${host}/menu/all/func`),
 	getRoleFunc: (roleId) => axios.get(`${host}/role/${roleId}/func`),
 	updateRoleFunc: (roleId, values) => axios.post(`${host}/role/${roleId}/func`, values),
+
 }

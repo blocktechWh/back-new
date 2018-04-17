@@ -48,7 +48,7 @@ export default class extends React.Component {
 					});
 
 					// 最终展示的角色列表应为 登录用户角色列表 及 待操作用户角色列表 的并集
-					let roles = this.selfRoles;
+					let roles = this.selfRoles.concat();
 					this.userRoles.forEach(role => {
 						if (!this.selfRoleIdSet.has(role.id)) {
 							roles.push(role);
@@ -59,8 +59,6 @@ export default class extends React.Component {
 						selectedRowKeys: Array.from(this.userRoleIdSet),
 						dataSource: roles,
 					});
-
-					this.selectedRowKeys = [];
 				} else {
 					message.error(res.msg);
 				}
@@ -87,11 +85,11 @@ export default class extends React.Component {
 
 		const columns = [{
 			title: '角色名称',
-			dataIndex: 'roleName',
+			dataIndex: 'name',
 			width: 200
 		}, {
 			title: '角色描述',
-			dataIndex: 'roleDesc',
+			dataIndex: 'desc',
 			width: 320
 		}];
 

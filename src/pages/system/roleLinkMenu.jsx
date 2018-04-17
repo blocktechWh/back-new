@@ -121,9 +121,13 @@ export default class extends React.Component {
 				return (
 					<TreeNode key={item.key} title={item.title} >
 						{item.functions.map(func => {
-							let title = `${func.name} (未关联)`;
-							if (this.funcMap.has(func.name)) {
+							let title = '';
+							if (!this.funcMap.has(func.name)) {
+								title = `${func.name} (未同步)`;
+							} else if (this.funcMap.get(func.name).requestName) {
 								title = this.funcMap.get(func.name).requestName + ` (${func.name})`;
+							} else {
+								title = `${func.name} (未关联)`;
 							}
 							return <TreeNode key={`${this.funcPre}${func.name}`} title={title} />;
 						})}
@@ -139,7 +143,7 @@ export default class extends React.Component {
 		let {visible, onClose} = this.props;
 
 		return (
-			<Modal visible={visible} title='分配权限' okText='确定' cancelText='取消' onOk={this.doSubmit} onCancel={onClose}>
+			<Modal visible={visible} title='分配权限' okText='确定' cancelText='取消' onOk={this.doSubmit} onCancel={onClose} wrapClassName={'roleLinkMenuModal'}>
 				<Tree checkable={true} defaultExpandAll={true} onCheck={this.onCheck} onSelect={this.onSelect} checkedKeys={this.state.checkedKeys}>
 					{this.renderTreeNodes(fullMenu)}
 				</Tree>

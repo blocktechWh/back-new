@@ -34,6 +34,30 @@ export const fullMenu = [{
 		icon: 'solution',
 		route: '/nav/system/role',
 		functions: [Api.getRole, Api.queryRole, Api.addRole, Api.updateRole, Api.deleteRole, Api.getAllFunc, Api.getRoleFunc, Api.updateRoleFunc],
+	}, {
+		key: 'onlineMng',
+		title: '在线用户（后台）',
+		icon: 'link',
+		route: '/nav/system/online/mng',
+		functions: [Api.queryOnline],
+	}, {
+		key: 'onlineMngHis',
+		title: '在线历史（后台）',
+		icon: 'link',
+		route: '/nav/system/online/mng/his',
+		functions: [Api.queryOnlineHis],
+	}, {
+		key: 'onlineApi',
+		title: '在线用户（前台）',
+		icon: 'link',
+		route: '/nav/system/online/api',
+		functions: [],
+	}, {
+		key: 'onlineApiHis',
+		title: '在线历史（前台）',
+		icon: 'link',
+		route: '/nav/system/online/api/his',
+		functions: [],
 	}],
 }, {
 	key: 'busiMng',

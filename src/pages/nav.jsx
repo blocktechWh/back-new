@@ -110,8 +110,8 @@ export default class extends React.Component {
 							{childrenWithParams}
 						</Content>
 						<Footer style={{textAlign: 'center'}}>
-							内页页脚，注意对齐位置
-                        </Footer>
+							{/* 内页页脚，注意对齐位置 */}
+						</Footer>
 					</Layout>
 				</Layout>
 			</Layout>

@@ -65,4 +65,7 @@ export default {
 	getRoleFunc: (roleId) => axios.get(`${host}/role/${roleId}/func`),
 	updateRoleFunc: (roleId, values) => axios.post(`${host}/role/${roleId}/func`, values),
 
+	// 在线
+	queryOnline: (values) => axios.post(`${host}/online/query`, values),
+	queryOnlineHis: (values) => axios.post(`${host}/online/his/query`, values),
 }

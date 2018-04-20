@@ -5,6 +5,7 @@ import DataGrid from './grid';
 export default class extends React.Component {
 	componentWillMount() {
 		console.log(this.props.functions)
+		console.log(this.props.title)
 	}
 
 	render() {

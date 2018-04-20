@@ -12,9 +12,10 @@ export default class extends React.Component {
 	componentWillMount() {
 		// 定义内部属性
 		let menuCodes = localStorage.getItem('menuCodes');
-		let {menuCountMap, routeFuncMap} = getMenuInfo(menuCodes);
+		let {menuCountMap, routeFuncMap, routeTitleMap} = getMenuInfo(menuCodes);
 		this.menuCountMap = menuCountMap;
 		this.routeFuncMap = routeFuncMap;
+		this.routeTitleMap = routeTitleMap;
 		this.functionCodes = localStorage.getItem('functionCodes');
 	}
 
@@ -74,6 +75,7 @@ export default class extends React.Component {
 			}
 
 			return React.cloneElement(child, {
+				'title': this.routeTitleMap.get(child.props.route.path), // 标题
 				'functions': functions, // 页面功能
 			})
 		});

@@ -67,7 +67,7 @@ export const fullMenu = [{
 		key: 'busiMng.sub01',
 		title: '设备管理',
 		icon: '',
-		route: '/nav/core/user',
+		route: '',
 		functions: [],
 	}],
 }];
@@ -78,13 +78,15 @@ export let menuList = [];
 let menuCountMap = new Map();
 // 记录每个路由页面的功能列表
 let routeFuncMap = new Map();
+// 记录每个路由页面的名称
+let routeTitleMap = new Map();
 
 // 递归遍历菜单，子菜单出现次数累加到父菜单
-function checkMenu(menu, menuCodes) {
+function checkMenu(menu, menuCodes, pMenuTitle) {
 	let c = 0;
 	if (menu.subMenus && menu.subMenus.length) { // 父菜单
 		for (let item of menu.subMenus) {
-			c += checkMenu(item, menuCodes);
+			c += checkMenu(item, menuCodes, menu.title);
 		}
 	} else if (menuCodes.includes(menu.key)) { // 包含子菜单
 		c = 1;
@@ -92,6 +94,13 @@ function checkMenu(menu, menuCodes) {
 		routeFuncMap.set(menu.route, menu.functions);
 	} else { // 未包含子菜单
 		menuCountMap.set(menu.key, 0);
+	}
+
+	// 菜单名称
+	if (pMenuTitle) {
+		routeTitleMap.set(menu.route, pMenuTitle + ' / ' + menu.title);
+	} else if (menu.route) {
+		routeTitleMap.set(menu.route, menu.title);
 	}
 
 	// 菜单列表
@@ -116,10 +125,11 @@ export function getMenuInfo(menuCodes) {
 	menuList = [];
 	menuCountMap = new Map();
 	routeFuncMap = new Map();
+	routeTitleMap = new Map();
 
 	for (let menu of fullMenu) {
 		menuCountMap.set(menu.key, checkMenu(menu, menuCodes));
 	};
 
-	return {menuCountMap, routeFuncMap};
+	return {menuCountMap, routeFuncMap, routeTitleMap};
 }

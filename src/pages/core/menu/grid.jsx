@@ -1,5 +1,5 @@
 import React from 'react';
-import {Table, Button, message} from 'antd';
+import {Table, Pagination, Button, message} from 'antd';
 
 import Api from '../../../api';
 import {eventProxy, Query} from '../../../utils';
@@ -32,9 +32,13 @@ export default class extends React.Component {
 
 		// 定义内部属性
 		this.queryData = {}; // 查询表单数据
+		this.defaultPageSize = 20; // 默认分页记录数
+		this.pagination = { // 分页信息
+			current: 1,
+			pageSize: this.defaultPageSize,
+		};
 		this.filters = {}; // 过滤信息
-		// 排序信息
-		this.sorter = {
+		this.sorter = { // 排序信息
 			columnKey: '',
 			field: '',
 			order: '',
@@ -52,13 +56,8 @@ export default class extends React.Component {
 	state = {
 		loading: false, // 是否加载中
 		dataSource: [], // 列表数据源
-		pagination: { // 分页信息
-			defaultPageSize: 20,
-			total: 0,
-			showSizeChanger: true,
-			showQuickJumper: true,
-			showTotal: total => `共 ${total} 条`,
-		},
+		selectedRowKeys: [], // 已选中记录
+		total: 0, // 总记录数
 
 		// 子列表相关
 		expandedRowKey: '', // 子列表展开对象，必须限制每次只能展开一个
@@ -68,7 +67,7 @@ export default class extends React.Component {
 	// 查询
 	doQuery = () => {
 		//	console.log("doQuery, queryData=" + JSON.stringify(this.queryData));
-		//	console.log("doQuery, pagination=" + JSON.stringify(this.state.pagination));
+		//	console.log("doQuery, pagination=" + JSON.stringify(this.pagination));
 		//	console.log("doQuery, filters=" + JSON.stringify(this.filters));
 		//	console.log("doQuery, sorter=" + JSON.stringify(this.sorter));
 
@@ -79,8 +78,8 @@ export default class extends React.Component {
 		and.add("menuName", this.queryData.name, Query.Oper.like);
 
 		// 分页信息
-		let pageSize = this.state.pagination.pageSize || this.state.pagination.defaultPageSize;
-		let current = this.state.pagination.current || 1;
+		let pageSize = this.pagination.pageSize;
+		let current = this.pagination.current;
 		let query = {
 			query: and,
 			start: pageSize * (current - 1),
@@ -95,17 +94,10 @@ export default class extends React.Component {
 		// 查询
 		this.queryFunc(query).then(res => {
 			if (200 === res.status) {
-				// 设置每一条数据的key
-				// Each record in table should have a unique `key` prop,or set `rowKey` to an unique primary key.
-				res.data.rows.map((item, index) => {
-					return item.key = item.id;
-				});
-
-				let pagination = this.state.pagination;
-				pagination.total = res.data.total;
 				this.setState({
 					dataSource: res.data.rows,
-					pagination,
+					total: res.data.total,
+					selectedRowKeys: [],
 				});
 			} else {
 				message.error(res.msg);
@@ -115,15 +107,24 @@ export default class extends React.Component {
 		});
 	}
 
-	// 分页、排序、筛选变化时触发
-	doTableChange = (pagination, filters, sorter) => {
-		this.filters = filters;
+	// 分页事件
+	doPaginationChange = (page, pageSize) => {
+		this.doTableChange({
+			current: page,
+			pageSize: pageSize,
+		})
+	}
 
+	// 排序、筛选变化时触发
+	doTableChange = (pagination, filters = this.filters, sorter = this.sorter) => {
+		if (Object.keys(pagination).length) {
+			this.pagination = pagination;
+		}
+
+		this.filters = filters;
 		this.sorter.columnKey = sorter.columnKey;
 		this.sorter.field = sorter.field;
 		this.sorter.order = sorter.order;
-
-		this.setState({pagination});
 		eventProxy.trigger('reloadEvent');
 	}
 
@@ -142,14 +143,10 @@ export default class extends React.Component {
 	// 子列表展开
 	doTableExpand = (expanded, record) => {
 		if (expanded) { // 展开
-			Api.getMenuFunc(record.key).then(res => {
+			Api.getMenuFunc(record.id).then(res => {
 				if (200 === res.status) {
-					res.data.map((item, index) => {
-						return item.key = item.id;
-					});
-
 					this.setState({
-						expandedRowKey: record.key,
+						expandedRowKey: record.id,
 						subDataSource: res.data,
 					});
 				} else {
@@ -188,7 +185,7 @@ export default class extends React.Component {
 			}
 
 			return (
-				<Table title={header} size='small' columns={columns} dataSource={this.state.subDataSource} pagination={false} bordered={true} />
+				<Table title={header} size='small' columns={columns} dataSource={this.state.subDataSource} rowKey={record => record.id} pagination={false} bordered={true} />
 			);
 		};
 
@@ -204,7 +201,6 @@ export default class extends React.Component {
 			width: 320
 		}];
 
-
 		// 表头功能栏
 		const header = () => {
 			return (
@@ -212,10 +208,18 @@ export default class extends React.Component {
 			)
 		}
 
+		// 表尾分页
+		const footer = () => {
+			return (
+				<Pagination defaultPageSize={this.defaultPageSize} showSizeChanger={true} showQuickJumper={true} showTotal={total => `共 ${total} 条`}
+					total={this.state.total} onChange={this.doPaginationChange} onShowSizeChange={this.doPaginationChange} />
+			)
+		}
+
 		return (
 			<Table title={header} columns={columns} dataSource={this.state.dataSource}
-				bordered={true} loading={this.state.loading}
-				pagination={this.state.pagination} onChange={this.doTableChange}
+				bordered={true} loading={this.state.loading} rowKey={record => record.id}
+				onChange={this.doTableChange} pagination={false} footer={footer}
 				expandedRowRender={menuFuncRender} expandRowByClick={false}
 				onExpand={this.doTableExpand} expandedRowKeys={[this.state.expandedRowKey]} />
 		)

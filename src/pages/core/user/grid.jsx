@@ -1,5 +1,5 @@
 import React from 'react';
-import {Table, Button, Popconfirm, message} from 'antd';
+import {Table, Pagination, Button, Popconfirm, message} from 'antd';
 
 import ViewForm from './view';
 import AddForm from './add';
@@ -16,22 +16,24 @@ export default class extends React.Component {
 		eventProxy.on('queryEvent', (values) => {
 			console.log("queryEvent");
 			this.queryData = values;
-			this.selectedRowKeys = [];
 			this.doQuery();
 		});
 
 		// 监听刷新事件
 		eventProxy.on('reloadEvent', () => {
 			console.log("reloadEvent");
-			this.selectedRowKeys = [];
 			this.doQuery();
 		});
 
 		// 定义内部属性
 		this.queryData = {}; // 查询表单数据
+		this.defaultPageSize = 20; // 默认分页记录数
+		this.pagination = { // 分页信息
+			current: 1,
+			pageSize: this.defaultPageSize,
+		};
 		this.filters = {}; // 过滤信息
-		// 排序信息
-		this.sorter = {
+		this.sorter = { // 排序信息
 			columnKey: '',
 			field: '',
 			order: '',
@@ -49,14 +51,8 @@ export default class extends React.Component {
 	state = {
 		loading: false, // 是否加载中
 		dataSource: [], // 列表数据源
-		selectedRowKeys: [],// 已选中记录
-		pagination: { // 分页信息
-			defaultPageSize: 20,
-			total: 0,
-			showSizeChanger: true,
-			showQuickJumper: true,
-			showTotal: total => `共 ${total} 条`,
-		},
+		selectedRowKeys: [], // 已选中记录
+		total: 0, // 总记录数
 
 		// 子组件相关
 		isViewShow: false,
@@ -73,7 +69,7 @@ export default class extends React.Component {
 	// 查询
 	doQuery = () => {
 		console.log("doQuery, queryData=" + JSON.stringify(this.queryData));
-		console.log("doQuery, pagination=" + JSON.stringify(this.state.pagination));
+		console.log("doQuery, pagination=" + JSON.stringify(this.pagination));
 		console.log("doQuery, filters=" + JSON.stringify(this.filters));
 		console.log("doQuery, sorter=" + JSON.stringify(this.sorter));
 
@@ -85,8 +81,8 @@ export default class extends React.Component {
 		and.add("createTime", this.queryData.regDate[0], Query.Oper.after);
 		and.add("createTime", this.queryData.regDate[1], Query.Oper.before);
 		// 分页信息
-		let pageSize = this.state.pagination.pageSize || this.state.pagination.defaultPageSize;
-		let current = this.state.pagination.current || 1;
+		let pageSize = this.pagination.pageSize;
+		let current = this.pagination.current;
 		let query = {
 			query: and,
 			start: pageSize * (current - 1),
@@ -101,11 +97,10 @@ export default class extends React.Component {
 		// 查询
 		Api.queryUser(query).then(res => {
 			if (200 === res.status) {
-				let pagination = this.state.pagination;
-				pagination.total = res.data.total;
 				this.setState({
 					dataSource: res.data.rows,
-					pagination,
+					total: res.data.total,
+					selectedRowKeys: [],
 				});
 			} else {
 				message.error(res.msg);
@@ -115,15 +110,24 @@ export default class extends React.Component {
 		});
 	}
 
-	// 分页、排序、筛选变化时触发
-	doTableChange = (pagination, filters, sorter) => {
-		this.filters = filters;
+	// 分页事件
+	doPaginationChange = (page, pageSize) => {
+		this.doTableChange({
+			current: page,
+			pageSize: pageSize,
+		})
+	}
 
+	// 排序、筛选变化时触发
+	doTableChange = (pagination, filters = this.filters, sorter = this.sorter) => {
+		if (Object.keys(pagination).length) {
+			this.pagination = pagination;
+		}
+
+		this.filters = filters;
 		this.sorter.columnKey = sorter.columnKey;
 		this.sorter.field = sorter.field;
 		this.sorter.order = sorter.order;
-
-		this.setState({pagination});
 		eventProxy.trigger('reloadEvent');
 	}
 
@@ -249,6 +253,14 @@ export default class extends React.Component {
 			)
 		}
 
+		// 表尾分页
+		const footer = () => {
+			return (
+				<Pagination defaultPageSize={this.defaultPageSize} showSizeChanger={true} showQuickJumper={true} showTotal={total => `共 ${total} 条`}
+					total={this.state.total} onChange={this.doPaginationChange} onShowSizeChange={this.doPaginationChange} />
+			)
+		}
+
 		return (
 			<div>
 				{/* 查看、新增、编辑 */}
@@ -261,7 +273,7 @@ export default class extends React.Component {
 
 				{/* 数据列表 */}
 				<Table title={header} rowSelection={rowSelection} columns={columns} dataSource={this.state.dataSource} rowKey={record => record.id}
-					bordered={true} loading={this.state.loading} pagination={this.state.pagination} onChange={this.doTableChange} />
+					bordered={true} loading={this.state.loading} onChange={this.doTableChange} pagination={false} footer={footer} />
 			</div >
 		)
 	}

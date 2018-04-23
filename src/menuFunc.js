@@ -98,9 +98,9 @@ function checkMenu(menu, menuCodes, pMenuTitle) {
 
 	// 菜单名称
 	if (pMenuTitle) {
-		routeTitleMap.set(menu.route, pMenuTitle + ' / ' + menu.title);
+		routeTitleMap.set(menu.route, [pMenuTitle, menu.title]);
 	} else if (menu.route) {
-		routeTitleMap.set(menu.route, menu.title);
+		routeTitleMap.set(menu.route, [menu.title]);
 	}
 
 	// 菜单列表

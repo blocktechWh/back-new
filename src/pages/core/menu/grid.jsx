@@ -66,30 +66,25 @@ export default class extends React.Component {
 
 	// 查询
 	doQuery = () => {
-		//	console.log("doQuery, queryData=" + JSON.stringify(this.queryData));
-		//	console.log("doQuery, pagination=" + JSON.stringify(this.pagination));
-		//	console.log("doQuery, filters=" + JSON.stringify(this.filters));
-		//	console.log("doQuery, sorter=" + JSON.stringify(this.sorter));
-
 		this.setState({loading: true});
+
+		// 分页信息
+		let query = {
+			current: this.pagination.current,
+			pageSize: this.pagination.pageSize,
+		}
 
 		// 查询条件
 		let and = new Query.And("menuCode", this.queryData.code, Query.Oper.like);
 		and.add("menuName", this.queryData.name, Query.Oper.like);
+		query.query = and;
 
-		// 分页信息
-		let pageSize = this.pagination.pageSize;
-		let current = this.pagination.current;
-		let query = {
-			query: and,
-			start: pageSize * (current - 1),
-			limit: pageSize,
-		}
 		// 排序条件
 		if (this.sorter.field) {
 			query.order = new Query.Order(this.sorter.field, this.sorter.order);
 		}
-		//	console.log("doQuery, query=" + JSON.stringify(query));
+
+		console.log('doQuery', JSON.stringify(query));
 
 		// 查询
 		this.queryFunc(query).then(res => {

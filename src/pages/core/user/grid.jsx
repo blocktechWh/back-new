@@ -68,31 +68,27 @@ export default class extends React.Component {
 
 	// 查询
 	doQuery = () => {
-		console.log("doQuery, queryData=" + JSON.stringify(this.queryData));
-		console.log("doQuery, pagination=" + JSON.stringify(this.pagination));
-		console.log("doQuery, filters=" + JSON.stringify(this.filters));
-		console.log("doQuery, sorter=" + JSON.stringify(this.sorter));
-
 		this.setState({loading: true});
+
+		// 分页信息
+		let query = {
+			current: this.pagination.current,
+			pageSize: this.pagination.pageSize,
+		}
 
 		// 查询条件
 		let and = new Query.And("userName", this.queryData.username, Query.Oper.like);
 		and.add("userState", this.queryData.state);
 		and.add("createTime", this.queryData.regDate[0], Query.Oper.after);
 		and.add("createTime", this.queryData.regDate[1], Query.Oper.before);
-		// 分页信息
-		let pageSize = this.pagination.pageSize;
-		let current = this.pagination.current;
-		let query = {
-			query: and,
-			start: pageSize * (current - 1),
-			limit: pageSize,
-		}
+		query.query = and;
+
 		// 排序条件
 		if (this.sorter.field) {
 			query.order = new Query.Order(this.sorter.field, this.sorter.order);
 		}
-		console.log("doQuery, query=" + JSON.stringify(query));
+
+		console.log('doQuery', JSON.stringify(query));
 
 		// 查询
 		Api.queryUser(query).then(res => {

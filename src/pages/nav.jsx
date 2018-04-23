@@ -1,6 +1,6 @@
 import React from 'react';
 import {Link} from 'react-router';
-import {Layout, Menu, Icon, Popconfirm, Button, message} from 'antd';
+import {Layout, Menu, Icon, Popconfirm, Button, message, Popover} from 'antd';
 const {Item, SubMenu} = Menu;
 const {Content, Sider, Footer, Header} = Layout;
 
@@ -79,41 +79,54 @@ export default class extends React.Component {
 				'functions': functions, // 页面功能
 			})
 		});
+		//确定 退出按钮
+		const content = (
+			<div className="btns">
 
+				<ChangePasswordForm visible={this.state.isFormShow} onClose={this.closeForm} />
+				<Button onClick={this.showForm}>修改密码</Button>
+				<Popconfirm placement="topRight" title="确认要退出系统吗？" onConfirm={this.handleLoginOut.bind(this)} okText="确认" cancelText="取消">
+					<Button >退出</Button>
+				</Popconfirm>
+			</div>
+		)
 		return (
 			<Layout>
 				{/* 页头 */}
-				<Header style={{background: '#f1f1f1', position: 'fixed', width: '100%', left: 0, zIndex: 100}}>
+				<Header className="header" >
 					{/* logo */}
-					<div style={{display: 'inline-block', width: 200, height: 50, padding: 10, background: '#313536'}}>
+					<div className="headerLeft">
 						<img src={process.env.PUBLIC_URL + '/logo.png'} alt='404' />
 					</div>
 					{/* 系统名称 */}
-					<span style={{color: '#000'}}>这里放系统名称</span>
+					<span className="headerRight">这里放系统名称</span>
 					{/* 功能按钮 */}
-					<div style={{float: 'right', width: 160}}>
-						<ChangePasswordForm visible={this.state.isFormShow} onClose={this.closeForm} />
-						<Button onClick={this.showForm}>修改密码</Button>
-						<Popconfirm placement="topRight" title="确认要退出系统吗？" onConfirm={this.handleLoginOut.bind(this)} okText="确认" cancelText="取消">
-							<Button >退出</Button>
-						</Popconfirm>
-					</div>
+
+					<Popover content={content} placement="bottom">
+
+						<Icon className="iconNav" type="setting" trigger="click" />
+
+					</Popover>
+
 				</Header>
 				<Layout>
 					{/* 侧边菜单栏 */}
-					<Sider width={200} style={{overflow: 'auto', height: '100vh', position: 'fixed', left: 0, top: 50, zIndex: 10}}>
-						<Menu theme="dark" mode="inline" style={{height: '100%'}} onClick={this.handleMenuClick} selectedKeys={[this.state.selectedKey]}>
-							{menuRender(fullMenu)}
-						</Menu>
+					<Sider className="navLeftBar">
+						<Layout>
+							<Content>
+								<Menu theme="dark" mode="inline" style={{height: '100%'}} onClick={this.handleMenuClick} selectedKeys={[this.state.selectedKey]}>
+									{menuRender(fullMenu)}
+								</Menu>
+							</Content>
+							<Footer className="footerIn">Blocktech Wuhan 2018</Footer>
+						</Layout>
 					</Sider>
 					{/* 功能页面区 */}
-					<Layout>
-						<Content style={{background: '#fff', marginLeft: 200, marginTop: 50}}>
+					<Layout className="golesContent">
+						<div className="contetLeftWrap"></div>
+						<Content className="goleContent">
 							{childrenWithParams}
 						</Content>
-						<Footer style={{textAlign: 'center'}}>
-							{/* 内页页脚，注意对齐位置 */}
-						</Footer>
 					</Layout>
 				</Layout>
 			</Layout>

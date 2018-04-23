@@ -1,0 +1,234 @@
+@charset "UTF-8";
+// 全局导航栏以及herder部分公用样式
+.ant-layout-header.header {
+    min-width: 1200px;
+    width: 100%;
+    height: 0.25rem;
+    background: #001529;
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding: 0;
+    overflow: hidden;
+    z-index: 10;
+    .headerLeft {
+        img {
+            position: absolute;
+            width: 10%;
+            height: auto;
+            left: 0;
+            top: 5px;
+            min-width: 100px;
+        }
+    }
+}
+
+.iconNav {
+    font-size: 30px;
+    color: #fff;
+    position: absolute;
+    right: 80px;
+    top: 10px;
+    cursor: pointer;
+}
+
+.btns button {
+    display: block;
+    margin-top: 10px;
+    width: 100px;
+}
+
+.ant-layout-sider.navLeftBar {
+    width: 15% !important;
+    overflow: auto;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    top: 0.25rem;
+    min-width: 180px !important;
+    max-width: 290px !important;
+    z-Index: 10;
+    ul {
+        li {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+    }
+}
+
+.ant-layout-footer.footerIn {
+    width: 15%;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    padding: 0;
+    z-index: 11;
+    color: #fff;
+    text-align: center;
+    background: none;
+    min-width: 180px;
+    max-width: 290px;
+}
+
+.ant-layout-footer.goleFooter {
+    background: red;
+    padding: 0;
+}
+
+//全局 右侧内容模块
+.golesContent {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #eb2626;
+    top: 0.25rem;
+    min-width: 1020px; //      overflow: hidden;
+    display: flex;
+    flex-direction: row !important;
+    .contetLeftWrap {
+        height: 100%;
+        flex: 15;
+        min-width: 180px !important;
+        max-width: 290px !important;
+    }
+    .goleContent {
+        height: auto;
+        flex: 85;
+        min-width: 1020px;
+        overflow: auto;
+    }
+}
+
+//home页面
+.homeWrap {
+    background: #fff;
+    text-align: center; //  margin-top: 0.1rem;
+    padding: 20px 20px;
+    width: 200px;
+    margin: 0.1rem auto;
+    border-radius: 10px;
+    span {
+        color: #666;
+        font-size: 18px;
+        height: auto;
+    }
+}
+
+//表格区 第一行按钮区
+.menuWrap {
+    .ant-row {
+        width: 98%;
+        display: flex;
+        overflow: hidden;
+        height: 0.2rem;
+        min-height: 50px;
+        background: #fff;
+        border-radius: 5px;
+        margin: 5px auto;
+        padding: 0 5px;
+        box-sizing: border-box;
+        .ant-col-7 {
+            flex: 3;
+            .ant-form-item-label {
+                width: auto;
+            }
+        }
+        .ant-col-7:nth-of-type(3) {
+            flex: 5;
+        }
+        .ant-col-3 {
+            flex: 2;
+            text-align: right;
+            button {
+                margin-top: 6px;
+            }
+        }
+    }
+    .ant-table-title {
+        width: 98%;
+        padding: 10px 0;
+        overflow: hidden;
+        height: 0.2rem;
+        min-height: 50px;
+        background: #fff;
+        border-radius: 5px;
+        margin: 0 auto 5px;
+        border: none;
+    }
+    .ant-spin-nested-loading {
+        width: 98%;
+        height: auto;
+        background: #fff;
+        margin: 0 auto;
+        border-radius: 5px;
+        .ant-table.ant-table-bordered .ant-table-title {
+            border: none;
+        }
+        .ant-table-body {
+            width: 98%;
+            height: auto;
+            margin: 5px auto;
+            background: #fff;
+            height: 1.8 rem;
+            min-height: 400px;
+            overflow: auto;
+            .ant-table-thead>tr>th {
+                padding: 0.05rem 0;
+            }
+            .ant-table-tbody>tr>td {
+                padding: 0.02rem 0;
+            }
+        }
+        .ant-table-footer {
+            background: #fff;
+        }
+        .ant-table.ant-table-bordered .ant-table-footer {
+            border: none;
+        }
+    }
+}
+
+//登录界面
+.login {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    min-width: 1200px;
+    background-image: url('%PUBLIC_URL%/loginBg.jpg');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    background-size: contain;
+    .loginBg {
+        width: 100%;
+        height: 100%; //   min-width: 1200px;
+    }
+    .login-form {
+        position: absolute;
+        top: 0.4rem;
+        min-width: 360px;
+        width: 26%;
+        left: 37%;
+        height: 400px;
+        background: rgba(255, 255, 255, 0.75);
+        .login-logo {
+            width: 100%;
+            height: auto;
+            img {
+                display: block;
+                margin: 25px auto 5px;
+            }
+            span {
+                display: block;
+                text-align: center;
+                font-size: 20px;
+                font-family: "微软雅黑";
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+        }
+        .ant-form {
+            max-width: 250px !important;
+        }
+    }
+}

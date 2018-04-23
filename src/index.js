@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {Router, Route, IndexRoute, hashHistory} from 'react-router';
-import './index.less';
+import './less/ba.less';
+import './less/index.less';
 
 // 页面框架、导航栏、登录页、首页、404
 import Frame from './pages/frame';
@@ -37,7 +38,7 @@ const RouteConfig =
 				<Route path="/nav/core/online/mng/his" component={OnlineMngHis}></Route>
 				<Route path="/nav/core/online/api" component={OnlineApi}></Route>
 				<Route path="/nav/core/online/api/his" component={OnlineApiHis}></Route>
-				/** 业务管理 */
+			/** 业务管理 */
 			</Route>
 		</Route>
 	</Router>;

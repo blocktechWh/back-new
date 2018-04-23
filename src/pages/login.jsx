@@ -43,10 +43,11 @@ class Login extends React.Component {
 		const {getFieldDecorator} = this.props.form;
 
 		return (
-			<div className="login" style={{textAlign: 'center', marginTop: '100px'}}>
+			<div className="login">
 				<div className="login-form" >
 					<div className="login-logo">
-						<span>管理后台</span>
+						<img src={'/logo.png'} alt='' />
+						<span>部落客管理后台</span>
 					</div>
 					<Form onSubmit={this.handleSubmit} style={{margin: '0 auto', maxWidth: '300px'}}>
 						<FormItem>

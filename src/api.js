@@ -60,6 +60,7 @@ export default {
 	addRole: (values) => axios.post(`${host}/role`, values),
 	updateRole: (roleId, values) => axios.put(`${host}/role/${roleId}`, values),
 	deleteRole: (roleId) => axios.delete(`${host}/role/${roleId}`),
+	exportRole: (exp) => axios.post(`${host}/role/query/export`, exp),
 	// 角色分配权限
 	getAllFunc: () => axios.get(`${host}/menu/all/func`),
 	getRoleFunc: (roleId) => axios.get(`${host}/role/${roleId}/func`),

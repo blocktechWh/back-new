@@ -46,6 +46,8 @@ export default class extends React.Component {
 			field: '',
 			order: '',
 		};
+		// 合并处理后的查询数据
+		this.query = {};
 	}
 
 	// 页面卸载
@@ -77,7 +79,7 @@ export default class extends React.Component {
 		this.setState({loading: true});
 
 		// 分页信息
-		let query = {
+		this.query = {
 			current: this.pagination.current,
 			pageSize: this.pagination.pageSize,
 		}
@@ -85,17 +87,17 @@ export default class extends React.Component {
 		// 查询条件
 		let and = new Query.And("menuCode", this.queryData.code, Query.Oper.like);
 		and.add("menuName", this.queryData.name, Query.Oper.like);
-		query.query = and;
+		this.query.query = and;
 
 		// 排序条件
 		if (this.sorter.field) {
-			query.order = new Query.Order(this.sorter.field, this.sorter.order);
+			this.query.order = new Query.Order(this.sorter.field, this.sorter.order);
 		}
 
-		console.log('doQuery', JSON.stringify(query));
+		console.log('doQuery', JSON.stringify(this.query));
 
 		// 查询
-		this.queryFunc(query).then(res => {
+		this.queryFunc(this.query).then(res => {
 			if (200 === res.status) {
 				this.setState({
 					dataSource: res.data.rows,
@@ -133,7 +135,34 @@ export default class extends React.Component {
 
 	// 导出
 	exportExcel = () => {
-		console.log(this.exportFunc);
+		// 导出列信息
+		this.query.colInfos = [{
+			title: '编号',
+			field: 'id',
+			width: 80
+		}, {
+			title: '角色名称',
+			field: 'roleName',
+			width: 200
+		}, {
+			title: '角色描述',
+			field: 'roleDesc',
+			width: 320
+		}];
+
+		// 如果已选中记录，变更查询条件
+		if (this.state.selectedRowKeys.length) {
+			this.query.query = new Query.And("id", this.state.selectedRowKeys, Query.Oper.in);
+		}
+
+		Api.exportRole(this.query).then(res => {
+			if (200 === res.status) {
+				console.log(res.data);
+				window.open('https://www.baidu.com');
+			} else {
+				message.error(res.msg);
+			}
+		});
 	}
 
 	// 删除
